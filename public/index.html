@@ -1,38 +1,466 @@
 <!DOCTYPE html>
-<html lang="en">
+<html style="height:100%">
 <head>
-    <meta charset="UTF-8">
-    <title>Prototyping API Calls</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="http://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="stylesheets/style.css">
-    <script async defer src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=AIzaSyADKIbgVfbrbgKxE5NYZwXyKKlTI0h-gzw"></script>
-    <script src="javascripts/index.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="icon" type="image/gif" href="animated_favicon1.gif">
+  <link rel="stylesheet" href="RouteLoops2.css" type="text/css" />
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+  <meta name="keywords" content="cycling, biking, ride, cycling routes, rider, cyclist, bike, usa
+			       cycling, elevation, map, gpx, gps, tcx, garmin, mapping,  plot,
+			       plotting, running, marathon, training" />
+  <meta name="keyphrases" content="running maps, running routes, bike route, bike routes, bike
+				 route planner, marathon training, map running routes" />
+  <title>RouteLoops</title>
+  <link href="http://code.google.com/apis/maps/documentation/javascript/examples/standard.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+  <script type="text/javascript"
+          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADKIbgVfbrbgKxE5NYZwXyKKlTI0h-gzw&v=3.exp&libraries=weather"></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <!--<script type="text/javascript" src="http://code.google.com/apis/gears/gears_init.js"></script>-->
+
+  <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-18939958-1']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+  </script>
+
+  <script type="text/javascript" src="javascripts/jquery-1.4.2.js"></script>
+  <script src="javascripts/RouteLoops.js" type="text/javascript"></script>
+  <script src="javascripts/OnAndOff.js" type="text/javascript"></script>
+  <!--<script src="RouteLoops_sponsors.js" type="text/javascript"></script>-->
+  <!--<script src="RouteLoops_sponsor_list.js" type="text/javascript"></script>-->
+  <script src="javascripts/RouteLoops_engine.js" type="text/javascript"></script>
+  <!--<script src="popup.js" type="text/javascript"></script>-->
+  <script src="javascripts/CuratedRouteLoops.js" type="text/javascript"></script>
+  <!--<script src="FileSaver.js" type="text/javascript"></script>-->
+  <script src="javascripts/Blob.js" type="text/javascript"></script>
+
+  <script type="text/javascript">
+      $(document).ready(function() {
+          var val = "Enter start/end address here";
+          //assign some watermark value into variable
+          if ($("#address").val() == "") {
+              $("#address").val(val);
+          }
+          //Check if user and enter into the textbox and remove the class we have assigned on focus event of the text Box
+          $("#address").focus(function() {
+              if (this.value == val) {
+                  this.value = "";
+                  $("#address").removeClass("watermark"); //remove class when user focus on the textbox
+              }
+          });
+          // If user did not enter any value in the text box then assign back the watermark value and assign the class
+          $("#address").blur(function() {
+              if (this.value == "") {
+                  this.value = val;
+                  $("#address").addClass("watermark");// Add class to the textbox
+              }
+          });
+      });
+  </script>
 </head>
 
-<h2>Prototytping API Calls for SpotCrime</h2>
-<body onload="initialize()" onunload="GUnload()" onload="showAddress()">
-<form action="#" onsubmit="showAddress(this.address.value); return false">
-    <p>
-        Enter an address. <br/>
-        The latitude/longitude will appear in the info window.
-    </p>
-    <p>
-        <input type="text" style="width:350px" name="address" value="111 Cummington Mall, Boston, MA 02115"/>
-        <input type="submit" value="Go!"/>
-    </p>
-    <div id="map_canvas" style="width: 700px; height: 400px;"></div>
-</form>
-<div>
-    <p id="point"></p>
+<body onload="initialize()" style="height:100%">
+<div id="keys" style="display:none">
+  free, map, maps, routes, run, running, bicycle, bicycling, bike, biking, cycle, cycling, train,
+  training, marathon,
+  running map, running maps, running routes,
+  bicycle map, bike map, cycle map,
+  bicycle maps, bicycle routes, bike maps, bike routes, biking maps, biking routes, cycling maps,
+  cycling routes,
+  marathon training,
+  free running map, free running maps, free running routes,
+  free bicycle map, free bicyle maps, free bike maps, free bike routes, free biking maps, free biking routes,
+  cue, sheets, cue sheets
 </div>
-<form method='POST'>
-    <input name="lat" type="text">
-    <input name="lon" type="text">
-    <input type="submit" value="Spot Crime">
-</form>
-<div id='textDiv'></div>
+<div id="top" style="position:relative">
+  <table>
+    <tr>
+      <td style="height:150px">
+        <!-- Google Adsense Code-->
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-0674847077990688";
+        /* RLheadline */
+        google_ad_slot = "1417642413";
+        google_ad_width = 728;
+        google_ad_height = 90;
+        //-->
+        </script>
+        <script type="text/javascript"
+                src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+        <!-- End of Google Adsense Code-->
+      </td>
+      <td style="background-color:#f7fd92; height:150px">
+        <a id="Billboard" style="font-size:16px;"></a>
+        <div id="BBdivGo" style="position:absolute; bottom:0px; right:0px">
+          <input id="BBdivGoButton" type="button" value="Pause" onclick="BBgo()"/>
+        </div>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<div id="Explain" style="border:0px solid black">
+  <table>
+    <tr>
+      <!--<td>
+        <a href="http://www.routeloops.com"><img src="banner_routeloops.gif" height="62px" width="300px"></a>
+      </td>-->
+      <td style="border:2px solid black; background-color:#b5b5b5;">
+        RouteLoops is the site that creates free, custom routes for running and biking that begin and end at the same location.  Just
+        enter a starting location and a distance, and you'll receive a custom route, of whatever
+        distance you specify, starting and ending at your location.
+      </td>
+    </tr>
+  </table>
+</div>
+<!--<div id="output" style="display:none">Relic. To remove, need to remove from javascript also.</div>
+
+<div id="links" style="font-family: arial, sans-serif; background-color:#b5b5b5; font-size:10px; padding-left:10px">
+  <a href="about.html" title="Read About RouteLoops" style="color:#9a0d0a">About</a>
+  &nbsp; | &nbsp;
+  <a href="news.html" title="Read News About RouteLoops" style="color:#9a0d0a">News</a>
+  &nbsp; | &nbsp;
+  <a href="help.html" title="Get Help on Using RouteLoops" style="color:#9a0d0a">Help</a>
+  &nbsp; | &nbsp;
+  <a href="feedback.html" title="Provide us Feedback on RouteLoops" style="color:#9a0d0a">Feedback</a>
+  &nbsp; | &nbsp;
+  <a href="sponsors.html" title="Support our Sponsors" style="color:#9a0d0a">Sponsors</a>
+</div>-->
+<div id="Buttons" style="padding-left:10px; background-color:#b5b5b5;">
+  <!--<div style="display:none">
+    <a href="index.html" style="color:#9a0d0a">English</a>
+    &nbsp;|&nbsp;
+    <a href="index-JP.html" style="color:#9a0d0a">日本語</a>
+    &nbsp;|&nbsp;
+    <a href="index-FR.html" style="color:#9a0d0a">Française</a>
+    &nbsp;|&nbsp;
+  </div>-->
+  <!--<a href="javascript:popInstructions()" style="color:#9a0d0a">Show usage Tips</a>
+  &nbsp;|&nbsp; -->
+  <!--<img  src="RLimages/New.png"/ height="12"/>-->
+  <!--<div style="display:none">
+    <a href="#" id="OSMversionOLD" target="_blank">OSM version</a>
+    &lt;!&ndash;<img  src="RLimages/New.png"/ height="12"/>&ndash;&gt;
+    &nbsp;|&nbsp;
+  </div>
+  <a href="#" id="OSMversion" target="_blank">OSM version</a>
+  &nbsp;|&nbsp;-->
+  <a href="javascript:OnAndOff(0)" style="color:#9a0d0a">Map Only</a>
+  &nbsp;|&nbsp;
+  <a href="javascript:OnAndOff(1)" style="color:#9a0d0a">Show Directions</a>
+  &nbsp;|&nbsp;
+  <!--<a href="javascript:OnAndOff(2)" style="color:#9a0d0a">Import/Export</a>
+  &nbsp;|&nbsp;-->
+  <a href="javascript:OnAndOff(3)" style="color:#9a0d0a">Settings</a>
+  &nbsp;|&nbsp;
+  <a href="javascript:OnAndOff(4)" style="color:#9a0d0a">Tools</a>
+  &nbsp;|&nbsp;
+  <a href="javascript:OnAndOff(5)" style="color:#9a0d0a">Recommended Routes</a>
+  &nbsp;|&nbsp;
+<!--  <a href="javascript:OnAndOff(6)" style="color:#9a0d0a">Contact</a>
+  <div style="display:none">
+    &nbsp;|&nbsp;
+    <a href="http://www.routeloops.com/LostAndFound/" target="_blank">Lost and Found</a>
+  </div>-->
+</div>
+<hr/>
+
+<div id="Configure" style="border: 0px solid black; font-size:12px; z-index:10;">
+  <input type="button" value="Find Me" onclick="getW3Clocation()"/>
+  <input id="address" type="text" size="40" style="background-color:#addfff;"value="" class="watermark" onblur="codeAddress()"/>
+  <input type="button" value="Set Start/End Location" onclick="codeAddress()"onsubmit="codeAddress()" onchange="codeAddress()"/>
+  <input id="length" type="textbox" value="10" size="2" onchange="getLength()" style="background-color:#addfff;"/>
+  &nbsp;
+  <a id="inputUnits">miles</a>.
+  <!--<input type="button" id="GoButton" value="Create Route of this Length" onclick="redrawOrNew(-1)"/>-->
+  <button id="GoButton" onclick="redrawOrNew(-1)"/> Create Route of this Length </button>
+  Route distance: <span id="total_1"></span> (<span id="routeTime"></span>)
+  <a onmouseover="popup('CLIMB is the vertical distance covered.<br>Grade is the steepest climb, over at least 30 meters, RouteLoops can find.')"
+     onfocus="this.blur()" title="" onmouseout="kill()" style="color:blue">	Climb/Grade rating </a> = <span id="Climb"></span>/<span id="Grade"></span>.
+</div>
+
+<div id="Tools" style="display:block">
+  <input type="button" value="Autofit to route" onclick="autoFit()" onsubmit="autoFit()" class="butt1" />
+  <input type="button" id="routeDrag" value="Route Unlocked (draggable)" onclick="dragNoDrag(-1)" class="butt1"/>
+  <input type="button" id="toggleClean" value="Turn AutoClean Off" onclick="toggleAutoClean()" class="butt1"/>
+  <a onmouseover="popup('Autoclean will try and remove dead-ends on your route, automatically.<br> If you do not want RouteLoops to do this, turn AutoClean off.')" onfocus="this.blur()" title="" onmouseout="kill()" style="color:blue; font-size:16px;">?</a>
+  <strong>Elevation:</strong>
+  <input id="toggleButton" type="button" value="Turn Plot On" onclick="toggleElevation()" onsubmit="toggleElevation()" class="butt1"/>
+  <input id="ElevationRating" type="button" value="Route Difficulty" onclick="getElevations()" class="butt1"/>
+  <a onmouseover="popup('Run an analysis of route topography.<br>This takes some time.<br>See Climb/Grade rating above.')"
+     onfocus="this.blur()" title="" onmouseout="kill()" style="color:blue; font-size:16px;">?</a>
+  <input id="toggleTraffic" type="button" value="Traffic on" onclick="toggleTraffic()" onsubmit="toggleTraffic()" class="butt1" />
+  <!--<input id="toggleWeather" type="button" value="Weather on" onclick="toggleWeather()" onsubmit="toggleWeather()" class="butt1"/>-->
+  <input id="toggleMileMarkers" type="button" value="Turn distance markers on" onclick="placeMileMarkers()" onsubmit="placeMileMarkers()" class="butt1"/>
+  <input id="revertRoute" type="button" value="Last route" onclick="revertToPreviousRoute()" class="butt1"/>
+  <input id="advanceRoute" type="button" value="Next route" onclick="advanceToNextRoute()" class="butt1"/>
+  <input id="rulerOn" type="button" value="Ruler On" onclick="addruler()" class="butt1"/>
+  <input id="rulerOff" type="button" value="Ruler Off" onclick="addruler()" class="butt1"/>
+  <a id="RulerValue"></a>
+  <div id="elevation_chart" style="width:25%; position:absolute; z-index:10"></div>
+  <div id="ecButton" style="text-align:center; display:none">
+    <input id="drawElevation" type="button" value="Update Elevation Plot" onclick="drawElevationPlot()"/>
+  </div>
+</div>
+
+<div id="directionsPanel" style="display:none"></div>
+<div id="mydirectionsPanel" style="font-size: 12px; float:left; display:none; width:25%; z-index:10;"></div>
+<!--
+<div id="Tools" style="display:none; float:left; width25%; z-index:10; padding-left:5px;">
+  <b>Tools:</b><br>
+  <input type="button" value="Autofit to route" onclick="autoFit()"
+               onsubmit="autoFit()" class="butt1"><br>
+  <input type="button" value="Lock the route (not draggable)" onclick="dragNoDrag(0)" class="butt1">
+  <input type="button" value="Unlock the route (draggable)" onclick="dragNoDrag(1)" class="butt1"><br>
+  <input type="button" id="toggleClean" value="Turn AutoClean Off"
+               onclick="toggleAutoClean()" class="butt1">
+  <a onmouseover="popup('Autoclean will try and remove dead-ends on your route, automatically.<br> If you do not want RouteLoops to do this, turn AutoClean off.')" onfocus="this.blur()" title="" onmouseout="kill()" style="color:blue; font-size:8px;">Explain this</a><br>
+  Elevation: <br/>
+  &nbsp;&nbsp;<input id="toggleButton" type="button" value="Turn Plot On" onclick="toggleElevation()" onsubmit="toggleElevation()" class="butt1"/><br/>
+  &nbsp;&nbsp;<input id="ElevationRating" type="button" value="Rate Route Difficulty" onclick="getElevations()" class="butt1"/>
+  <a onmouseover="popup('Run an analysis of route topography.<br>This takes some time.<br>See Climb/Grade rating above.')"
+     onfocus="this.blur()" title="" onmouseout="kill()" style="color:blue; font-size:8px;">Explain this</a><br>
+  <input id="toggleTraffic" type="button" value="Turn real-time traffic on" onclick="toggleTraffic()" onsubmit="toggleTraffic()"
+               class="butt1"><br>
+  <input id="toggleWeather" type="button" value="Turn weather information on" onclick="toggleWeather()" onsubmit="toggleWeather()"
+               class="butt1"><br>
+  <input id="toggleMileMarkers" type="button" value="Turn distance markers on" onclick="placeMileMarkers()" onsubmit="placeMileMarkers()" class="butt1"><br>
+  <input id="revertRoute" type="button" value="Revert to prevous route" onclick="revertToPreviousRoute()" class="butt1">
+    <input id="advanceRoute" type="button" value="Advance to next route" onclick="advanceToNextRoute()" class="butt1"/><br/>
+    <input id="rulerOn" type="button" value="Ruler On" onclick="addruler()" class="butt1"/>
+    <input id="rulerOff" type="button" value="Ruler Off" onclick="addruler()" class="butt1"/>
+    <a id="RulerValue"></a><br/>
+
+  <div id="elevation_chart" style="width:25%; position:absolute; z-index:10"></div>
+  <div id="ecButton" style="text-align:center; display:none">
+    <input id="drawElevation" type="button" value="Update Elevation Plot" onclick="drawElevationPlot()">
+  </div>
+
+  </div>
+  -->
+<div id="IO" style="display:none; float:left; width:25%; font-size:12px; z-index:10;">
+  <div id="GPSin">
+    <i><strong>IMPORT</strong><br/>
+      You can create a route by reading in a preexisting GPS (GPX, TCX, ...) file. </i><br>
+    <input type="file" name="trackRead" id="trackRead" style="font-size:15px;" /><br/>
+    <input id="clearRainbow" type="button" value="Clear Imported Track" onclick="clearTrack()">
+  </div>
+  <i><strong>EXPORT</strong></i><br/>
+  <!--<center><input id="tcxName" type="textbox" value="" size="18"/><br/>Route Name</center>
+  <a href="javascript:makeGPX()"><img src="RLimages/gpx1button-2.png"/></a>
+  <a onmouseover="popup('This GPX file has a small number of points.  Use this if you want your Garmin, or other, GPS device to do the routing for you.')" onfocus="this.blur()" title="" onmouseout="kill()" style="color:blue">Explain this</a><br/>
+  <a href="javascript:makeGPX2()"><img src="RLimages/gpx2button-2.png"/></a>
+  <a onmouseover="popup('This GPX file has a large number of points.  Use this to specify exactly the route you want to follow.  For example, use this file with Osmand to follow your route on an Android device.')" onfocus="this.blur()" title="" onmouseout="kill()" style="color:blue">Explain this</a><br/>-->
+  <div id="Garmin" style="border: 1px solid black; background-color:lightgrey">
+    <strong>For Garmin device users only</strong><br/>
+    Set TCX warnings <input id="tcxAdvance" type="textbox" value="300" size="3" onchange="redrawOrNew()"/>&nbsp;<a id="tcxUnits">feet</a> in advance.
+    <br/>
+    Average speed: <input id="tcxSpeed" type="textbox" value="12" size="3" onchange="changeSpeed()"/><a id="tcxSpeedUnits">mph.</a><br/>
+    <a href="javascript:makeTCX()"><img src="RLimages/tcxbutton-2.png"/></a>
+  </div>
+  <p/>
+  <!--<a href="javascript:makeCue()"><img src="RLimages/cuebutton-2.png"/></a>
+  <a href="#" title="Click to update the URL to save this route" id="permalink"><img src="RLimages/permalinkbutton-2.png"/></a>
+  <a href="javascript:makeKML()" onmouseover="popup('View in Google Earth')" onfocus="this.blur()" title="" onmouseout="kill()" style="color:blue">
+    <img src="RLimages/kmlbutton-2.png"/>
+  </a>-->
+  <br/>
+<!--  <div style="border: 3px solid black;">
+    <img src="RLimages/logo_mmfit_gradient.gif" width="90%" title="MMF users, store your route on MMF"/><br/>
+    <center>
+      MapMyFitness <span style="font-style:italic;">Username:</span> <br/><input id="mmfID" type="textbox"/><br/>
+      MapMyFitness <span style="font-style:italic;">Password:</span> <br/><input id="mmfPW" type="password"/><br/>
+      <a href="javascript:sendToMMF()"><img src="RLimages/mmfbutton-2.png"/></a><br/>
+    </center>
+  </div>-->
+</div>
+
+<div id="Settings" style="display:none; width:25%; float:left; z-index:10;">
+  <table>
+    <tr>
+      <td>
+        Travel Mode:
+      </td>
+      <td>
+        <select id="travelMode" onchange="redrawOrNew();">
+          <option value="0">Car/Motorcycle</option>
+          <option value="1" selected>Bike</option>
+          <option value="2">Walk/Run</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Avoid Highways:
+      </td>
+      <td>
+        <select id="highways" onchange="redrawOrNew();">
+          <option value="0" selected>Yes, avoid</option>
+          <option value="1">No, Allow</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a onmouseover="popup('Think of this in terms of right and left turns.<br>CW: more right turns.<br>CCW: more left turns')"
+           onfocus="this.blur()" title="" onmouseout="kill()" style="color:blue">
+          (Counter)Clockwise:</a>
+      </td>
+      <td>
+        <select id="travelDirection" onchange="reverseOrNew();">
+          <option value="0" selected>Clockwise</option>
+          <option value="1">Counter-clockwise</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Direction (North, South, etc.):
+      </td>
+      <td>
+        <select id="travelHeading" onchange="initialize();">
+          <option value="0" selected>any</option>
+          <option value="1">North</option>
+          <option value="2">Northeast</option>
+          <option value="3">East</option>
+          <option value="4">Southeast</option>
+          <option value="5">South</option>
+          <option value="6">Southwest</option>
+          <option value="7">West</option>
+          <option value="8">Northwest</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Unit System:
+      </td>
+      <td>
+        <select id="unitSystem" onchange="switchUnits();">
+          <option value="0" selected>miles, feet</option>
+          <option value="1">kilometers, meters</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a onmouseover="popup('If you live in an area where there are ferries, you can try and get RouteLoops to avoid them.  Or, of course, allow it to use them if that happens')"
+           onfocus="this.blur()" title="" onmouseout="kill()" style="color:blue">
+          Travel by ferry is</a>
+      </td>
+      <td>
+        <select id="ferryButton" onchange="toggleFerries();">
+          <option value="0" selected>Not Allowed</option>
+          <option value="1">Allowed</option>
+        </select>
+      </td>
+    </tr>
+  </table>
+  <a id="modeWarning"><b><i></i></b></a>
+  <br/><hr>
+  <strong>Set fixed waypoint:</strong><br/>
+  Address: <input id="fixedPoint_0" type="text" value="" size="30" style="background-color:#addfff" onchange="handleFixed(0)"/>
+</div>
+
+<div id="Recommended" style="float:left; width:25%; display:none; z-index:10;">
+  <strong>Recommended Routes</strong><br/>
+  <!--<input type="button" id="readAllCurated" value="Read in all recommended routes" onclick="readAllCurated()"/><br/>-->
+  Show me
+  <select id="CurateLimit" onchange="getCurated()">
+    <option value="0">all</option>
+    <option value="1" selected>nearby</option>
+  </select>
+  recommended routes.<br/>
+  If "nearby", input separation in km.  <input id="curatedNearby" type="text" size="2"
+                                               style="background-color:#addfff;" value="2" onchange="getCurated()"/><br/>
+  <input type="button" id="getCurated" value="Create Recommended Route List" onclick="getCurated()"/>
+  <br/>
+  Choose a recommended route:
+  <select id="Curated" onchange="displayCurated()">
+    <!--<option value="-1" selected>Pick one</option>
+    <option value="0">Route 1</option>-->
+  </select>
+  <br/>
+  <input type="button" id="reCurate" value="Rebuild this route from the new starting point" onclick="reCurate()"/><br/>
+  <hr/>
+  <input type="button" id="addToCurated" value="Add current route to recommended route list" onclick="addToCurated()"/><br/>
+</div>
+<!--<div id="ContactForm" style="display:none">
+  <form method="post" action="contactV2.php" target="_blank">
+    <table><tr>
+      <td>
+        <input type="text" id="sendTo" name="sendTo" style="display:none"/>
+        Your Email Address: <input name="email" type="text" id="yourEmail" onchange="checkEmail(2)"/><br/>
+        Subject of the Message: <input type="text" id="subject" name="subject"/><br/>
+        Message:<br/>
+        <textarea name="message" rows="15" cols="40"></textarea><br/>
+        <input type="submit"/>
+      </td>
+      &lt;!&ndash;
+      <td>
+        <script type="text/javascript"
+            src="http://www.google.com/recaptcha/api/challenge?k=6LdCFvASAAAAAFkSIjRKl7ZREt1NQ5PPAERqzxyw">
+        </script>
+        <noscript>
+          <iframe src="http://www.google.com/recaptcha/api/noscript?k=6LdCFvASAAAAAFkSIjRKl7ZREt1NQ5PPAERqzxyw"
+              height="300" width="500" frameborder="0"></iframe><br>
+        <textarea name="recaptcha_challenge_field" rows="3" cols="40">
+        </textarea>
+        <input type="hidden" name="recaptcha_response_field" value="manual_challenge">
+        </noscript>
+        &ndash;&gt;
+      &lt;!&ndash;
+          <?php
+        require_once('recaptcha-php-1.11/recaptchalib.php');
+        $publickey = "6LdCFvASAAAAAFkSIjRKl7ZREt1NQ5PPAERqzxyw"; // you got this from the signup page
+        echo recaptcha_get_html($publickey);
+      ?>
+
+        </td> &ndash;&gt;
+      <td>
+        <div class="g-recaptcha" data-sitekey="6LdCFvASAAAAAFkSIjRKl7ZREt1NQ5PPAERqzxyw"></div>
+      </td>
+    </tr>
+    </table>
+  </form>
+</div>-->
+<div id="map_canvas" style="height:100%"></div>
+<!--<div id="follow" style="font-size:10px">
+  <a href="http://www.facebook.com/group.php?gid=126802877172"  title="Friend us on FaceBook" target="_fb">
+    <img src="RLimages/fb.png" alt="Friend us on FaceBook" title="Friend us on FaceBook" height="25" width="25" align="center">
+  </a>
+  <iframe src="http://www.facebook.com/widgets/like.php?href=http://www.routeloops.com"
+          scrolling="no" frameborder="0"
+          style="border:none; width:294px; height:25px"></iframe>
+  &lt;!&ndash; above iframe stuff causes a css error &ndash;&gt;
+
+  <a href="http://www.twitter.com/routeloops"  title="Follow us on Twitter" target="_tw">
+    <img src="RLimages/twitter.png" alt="Follow us on Twitter" title="Follow us on Twitter" align="center" height="25" width="25" />
+  </a>
+
+  <a href="http://www.google.com/ig/adde?moduleurl=http://www.routeloops.com/gadget/RouteLoops_Gadget.xml" title="iGoogle Gadget">
+    <img src="http://buttons.googlesyndication.com/fusion/add.gif" style="width:104px; height:17px;border:0px;" alt="Add to iGoogle" />
+  </a>
+
+  <a id="nabblelink" href="http://routeloops-forum.969496.n3.nabble.com/" style="font-size: 12px">
+    <img src="RLimages/RLtwit.png" alt="Participate in the forum" title="Participate in the forum" height="16" width="32" align="center"/>
+  </a>
+</div>-->
+<hr/>
+<div id="footer" style="font-size:8px">
+  <center>
+    <a id="crYear"></a>
+    <!--Use of this web site signifies your agreement to the <a href="../terms.php" title="Terms of Use" target="_termsofuse">Terms of Use</a>.<br />
+    <a href="../privacy.php" title="Privacy Statement" target="_termsofuse">Privacy Statement</a> | <a href="../contact.php" title="Contact Us" target="_contact">Contact Us</a>-->
+  </center>
+</div>
 </body>
 </html>
-
