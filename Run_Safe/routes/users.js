@@ -2,8 +2,8 @@ var express = require('express');
 var router = express.Router();
 var spotcrime = require('spotcrime');
 var MongoClient = require('mongodb').MongoClient;
-//var uri = "mongodb://RunSafe:411@runsafe-shard-00-00-jztgt.mongodb.net:27017,runsafe-shard-00-01-jztgt.mongodb.net:27017,runsafe-shard-00-02-jztgt.mongodb.net:27017/test?ssl=true&replicaSet=RunSafe-shard-0&authSource=admin";
-var uri = "mongodb://localhost:3000/MyDb"
+var uri = "mongodb://RunSafe:411@runsafe-shard-00-00-jztgt.mongodb.net:27017,runsafe-shard-00-01-jztgt.mongodb.net:27017,runsafe-shard-00-02-jztgt.mongodb.net:27017/test?ssl=true&replicaSet=RunSafe-shard-0&authSource=admin";
+//var uri = "mongodb://localhost:3000/RunSafe"
 
 router.post('/routes', function(req, res, next) {
 // somewhere near phoenix, az
@@ -22,16 +22,15 @@ router.post('/routes', function(req, res, next) {
     });
 });
 
-
 router.post('/', function(req, res, next) {
     var user = {
         //'username': req.body.first_name + " " + req.body.last_name,
-        'username': username,
-        'email': email,
-        'gender': gender
-        /*'age': req.body.age,
+        'username': req.body.username,
+        'email': req.body.email,
+        'gender': req.body.gender,
+        'age': req.body.age,
         'height': req.body.feet + "'" + req.body.inches,
-        'weight': req.body.weight*/
+        'weight': req.body.weight
     };
 
     MongoClient.connect(uri, function(err, db) {
@@ -66,7 +65,7 @@ router.get('/profile', function(req, res) {
 });
 
 
-/*router.post('/profile', function(req, res, next) {
+/*router.post('/favorites', function(req, res, next) {
     var route = {
         'Name': req.body.route_name,
         'Distance': req.body.distance,

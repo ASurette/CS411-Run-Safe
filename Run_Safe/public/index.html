@@ -45,7 +45,7 @@
                 // Get and display the user profile data
                 getFbUserData();
                 document.getElementById('status').innerHTML = 'User logged in successfully.';
-                window.location.replace("http://localhost:3000/routes.html");
+                window.location.replace("http://localhost:3000/userinfo.html");
 
             } else {
                 document.getElementById('status').innerHTML = 'User cancelled login or did not fully authorize.';
@@ -60,11 +60,11 @@
                 document.getElementById('fbLink').setAttribute("onclick","fbLogout()");
                 document.getElementById('fbLink').innerHTML = 'Logout from Facebook';
                 document.getElementById('status').innerHTML = 'Thanks for logging in, ' + response.first_name + '!';
-                //document.getElementById('username').innerHTML = response.first_name + response.last_name;
-                //document.getElementById('emai/;').innerHTML = response.email;
-                //document.getElementById('gender').innerHTML = response.gender;
 
-                document.getElementById('userData').innerHTML = '<p><b>FB ID:</b> '+response.id+'</p><p><b>Name:</b> '+response.first_name+' '+response.last_name+'</p><p><b>Email:</b> '+response.email+'</p><p><b>Gender:</b> '+response.gender+'</p><p><b>Locale:</b> '+response.locale+'</p><p><b>';
+                document.getElementById('username').innerHTML = response.first_name + response.last_name;
+                document.getElementById('email').innerHTML = response.email;
+                document.getElementById('gender').innerHTML = response.gender;
+                //document.getElementById('userData').innerHTML = '<p><b>FB ID:</b> '+response.id+'</p><p><b>Name:</b> '+response.first_name+' '+response.last_name+'</p><p><b>Email:</b> '+response.email+'</p><p><b>Gender:</b> '+response.gender+'</p><p><b>Locale:</b> '+response.locale+'</p><p><b>';
             });
     }
 
@@ -89,6 +89,7 @@
     <input id = "fblink" type = "button" value = "Login with Facebook" style="height:10px; width:300px" a href="javascript:void(0);" onclick="fbLogin()"/></inputa>
     <br>
     <input id="guest" type="button" value="Continue as Guest" style="height:10px; width:300px" onclick="location.href='routes.html';" />
+    <input id="profile" type="button" value="Continue as Guest" style="height:10px; width:300px" onclick="location.href='profile.html';" />
 </div>
 
 <!-- Display user profile data -->
