@@ -25,7 +25,7 @@ router.post('/routes', function(req, res, next) {
 //Posting User Info to Mongo
 router.post('/user', function(req,res,next) {
     MongoClient.connect(uri, function (err, db) {
-        if (err) return
+        if (err) return;
 
         var collection = db.collection('Users');
         var username = req.body.first_name + " " + req.body.last_name;
@@ -38,7 +38,8 @@ router.post('/user', function(req,res,next) {
 
         });
         res.redirect('routes.html');
-
+        //return obj id
+        //"_id" : ObjectId("..."),
     });
 });
 
@@ -74,7 +75,7 @@ router.get('/profile', function(req, res) {
 
             collection.find({username: 'username'}).toArray(function(err, items) {
                 if (err) throw err;
-                console.log(items)
+                console.log(items);
                 db.close()
             })
 
@@ -86,26 +87,26 @@ router.get('/profile', function(req, res) {
 });
 
 
-/*router.post('/favorites', function(req, res, next) {
-    var route = {
-        'Name': req.body.route_name,
-        'Distance': req.body.distance,
-        'Route': req.body.link
-    };
+router.post('/favorites', function(req, res, next) {
 
     MongoClient.connect(uri, function(err, db) {
+        if (err) return;
 
-        if (err) throw err;
-        db.collection("Favorite Routes").insertOne(route, function(err, res) {
-            if (err) throw err;
-            console.log("Route saved");
+        var collection = db.collection('Users');
+        var route_name = req.body.first_name + " " + req.body.last_name;
+        var start = req.body.age;
+        var distance = req.body.feet + "'" + req.body.inches;
+        var calories = req.body.weight;
+        var link = req.body.link;
+        collection.insertOne({name: route_name, start: start, distance: distance, calories: calories, link: link}, function (err, result) {
+            console.log('Route added');
             db.close();
+
         });
     });
 
     res.redirect("profile.html")
     //res.render('index', {'user':user});
 });
-*/
 
 module.exports = router;
