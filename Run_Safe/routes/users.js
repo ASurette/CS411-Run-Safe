@@ -2,8 +2,8 @@ var express = require('express');
 var router = express.Router();
 var spotcrime = require('spotcrime');
 var MongoClient = require('mongodb').MongoClient;
-var uri = "mongodb://RunSafe:411@runsafe-shard-00-00-jztgt.mongodb.net:27017,runsafe-shard-00-01-jztgt.mongodb.net:27017,runsafe-shard-00-02-jztgt.mongodb.net:27017/test?ssl=true&replicaSet=RunSafe-shard-0&authSource=admin";
-//var uri = "mongodb://localhost:3000/RunSafe"
+//var uri = "mongodb://RunSafe:411@runsafe-shard-00-00-jztgt.mongodb.net:27017,runsafe-shard-00-01-jztgt.mongodb.net:27017,runsafe-shard-00-02-jztgt.mongodb.net:27017/test?ssl=true&replicaSet=RunSafe-shard-0&authSource=admin";
+var uri = "mongodb://localhost/RunSafe";
 
 router.post('/routes', function(req, res, next) {
 // somewhere near phoenix, az
@@ -22,7 +22,27 @@ router.post('/routes', function(req, res, next) {
     });
 });
 
-router.post('/', function(req, res, next) {
+//Posting User Info to Mongo
+router.post('/user', function(req,res,next) {
+    MongoClient.connect(uri, function (err, db) {
+        if (err) return
+
+        var collection = db.collection('Users');
+        var username = req.body.first_name + " " + req.body.last_name;
+        var age = req.body.age;
+        var height = req.body.feet + "'" + req.body.inches;
+        var weight = req.body.weight;
+        collection.insertOne({username: username, age: age, height: height, weight: weight}, function (err, result) {
+            console.log('1 user added');
+            db.close();
+
+        });
+        res.redirect('routes.html');
+
+    });
+});
+
+/*router.post('/', function(req, res, next) {
     var user = {
         //'username': req.body.first_name + " " + req.body.last_name,
         'username': req.body.username,
@@ -45,23 +65,24 @@ router.post('/', function(req, res, next) {
 
     res.redirect("routes.html")
 });
-
+*/
 router.get('/profile', function(req, res) {
 
     MongoClient.connect(uri, function (err, db) {
 
         db.collection('Users', function (err, collection) {
 
-            collection.find().toArray(function(err, items) {
-                if(err) throw err;
-                console.log(items);
-            });
+            collection.find({username: 'username'}).toArray(function(err, items) {
+                if (err) throw err;
+                console.log(items)
+                db.close()
+            })
 
         });
 
     });
 
-    res.render('index', {user: users});
+    res.render('index', {item: user});
 });
 
 
@@ -87,4 +108,4 @@ router.get('/profile', function(req, res) {
 });
 */
 
-module.exports = router
+module.exports = router;

@@ -61,10 +61,14 @@
                 document.getElementById('fbLink').innerHTML = 'Logout from Facebook';
                 document.getElementById('status').innerHTML = 'Thanks for logging in, ' + response.first_name + '!';
 
+                //find a way to get this FbUserData to the user schema in users.js to log to mongo
+                document.getElementById('fbid').innerHTML = response.id;
+                document.getElementById('first_name').innerHTML = response.first_name;
+                document.getElementById('last_name').innerHTML = response.last_name;
                 document.getElementById('username').innerHTML = response.first_name + response.last_name;
                 document.getElementById('email').innerHTML = response.email;
                 document.getElementById('gender').innerHTML = response.gender;
-                //document.getElementById('userData').innerHTML = '<p><b>FB ID:</b> '+response.id+'</p><p><b>Name:</b> '+response.first_name+' '+response.last_name+'</p><p><b>Email:</b> '+response.email+'</p><p><b>Gender:</b> '+response.gender+'</p><p><b>Locale:</b> '+response.locale+'</p><p><b>';
+                document.getElementById('userData').innerHTML = '<p><b>FB ID:</b> '+response.id+'</p><p><b>Name:</b> '+response.first_name+' '+response.last_name+'</p><p><b>Email:</b> '+response.email+'</p><p><b>Gender:</b> '+response.gender+'</p><p><b>Locale:</b> '+response.locale+'</p><p><b>';
             });
     }
 
@@ -74,7 +78,7 @@
             document.getElementById('fbLink').setAttribute("onclick","fbLogin()");
             document.getElementById('fbLink').innerHTML = '<img src="fblogin.png"/>';
             document.getElementById('userData').innerHTML = '';
-            document.getElementById('status').innerHTML = 'You have successfully logout from Facebook.';
+            document.getElementById('status').innerHTML = 'You have successfully logged out from Facebook.';
         });
     }
 </script>
@@ -86,10 +90,10 @@
 <!-- Facebook login or logout button -->
 
 <div>
-    <input id = "fblink" type = "button" value = "Login with Facebook" style="height:10px; width:300px" a href="javascript:void(0);" onclick="fbLogin()"/></inputa>
+    <input id = "fbLogin" type = "button" value = "Login with Facebook" style="height:150px; width:300px" a href="javascript:void(0);" onclick="fbLogin()"/></inputa>
     <br>
-    <input id="guest" type="button" value="Continue as Guest" style="height:10px; width:300px" onclick="location.href='routes.html';" />
-    <input id="profile" type="button" value="Continue as Guest" style="height:10px; width:300px" onclick="location.href='profile.html';" />
+    <input id="guest" type="button" value="Continue as Guest" style="height:150px; width:300px" onclick="location.href='routes.html';" />
+    <!--<input id="profile" type="button" value="Profile" style="height:10px; width:300px" onclick="location.href='profile.html';" />--->
 </div>
 
 <!-- Display user profile data -->

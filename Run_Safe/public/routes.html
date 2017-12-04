@@ -79,11 +79,6 @@
     <a id="inputUnits">miles</a>.
     <button id="GoButton" onclick="redrawOrNew(-1)"/> Create Route of this Length </button>
     Route distance: <span id="total_1"></span> (<span id="routeTime"></span>)
-    <!------------
-    --------------
-    -------------
-    ------------
-    -------------->
 </div>
 
 <div id="Tools" style="display:block">
@@ -93,6 +88,8 @@
     <input id="toggleMileMarkers" type="button" value="Turn distance markers on" onclick="placeMileMarkers()" onsubmit="placeMileMarkers()" class="butt1"/>
     <input id="revertRoute" type="button" value="Last route" onclick="revertToPreviousRoute()" class="butt1"/>
     <input id="advanceRoute" type="button" value="Next route" onclick="advanceToNextRoute()" class="butt1"/>
+    <input id="endRoute" type="button" value="End Run" onclick="location.href='end.html';" class="butt1"/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s
     <div id="elevation_chart" style="width:25%; position:absolute; z-index:10"></div>
     <div id="ecButton" style="text-align:center; display:none">
         <input id="drawElevation" type="button" value="Update Elevation Plot" onclick="drawElevationPlot()"/>
@@ -148,6 +145,7 @@
                     <option value="0" selected>Clockwise</option>
                     <!--          <option value="1">Counter-clockwise</option>
                             </select>-->
+                </select>
             </td>
         </tr>
         <tr>

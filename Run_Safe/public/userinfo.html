@@ -13,17 +13,16 @@
 <h2>User Information</h2>
 
 <p> Additional User Information for Profile </p>
+<p>*required field</p>
 <br>
 
-<div id="userData"></div>
-
-<form id="userinformation" method="post" action="http://localhost:3000/">
-    <!--First Name: <input id = "first_name" type = "text" name = "first_name" minlength = "1" maxlength= "15"><br>
-    Last Name: <input id = "last_name" type = "text" name = "last_name" minlength = "1" maxlength= "15"><br>--->
-    Age: <input id = "age" type= "number" size= "2" name = "age" min= "0" max= "150" required><br>
-    Height (feet): <input id = "feet" type= "number" name = "feet" size= "1" min= "0" max= "10" required>
-    (inches): <input id = "inches" type= "number" name = "inches" size= "1" min= "0" max= "12" required><br>
-    Weight (lbs): <input id = "weight" type= "number" name = "weight" size= "2" step= "0.01" min= "1" max= "400" required><br>
+<form id="userinformation" method="post" action="/user">
+    *First Name: <input id = "first_name" type = "text" name = "first_name" minlength = "1" maxlength= "15" required><br>
+    *Last Name: <input id = "last_name" type = "text" name = "last_name" minlength = "1" maxlength= "15" required><br>
+    *Age: <input id = "age" type= "number" size= "2" name = "age" min= "0" max= "150" required><br>
+    Height (feet): <input id = "feet" type= "number" name = "feet" size= "1" min= "0" max= "10">
+    (inches): <input id = "inches" type= "number" name = "inches" size= "1" min= "0" max= "12"><br>
+    Weight (lbs): <input id = "weight" type= "number" name = "weight" size= "2" step= "0.01" min= "1" max= "400"><br>
     <input type="submit" value="Submit">
 
 </form>
