@@ -1,13 +1,5 @@
-html
-  body
-    ul
-      each item in user
-        li #{user.username}
-        li #{user.gender}
-        //li #{user.age}
-        //li #{user.height)
-        //li #{user.weight}
+extends layout
 
-
-
-
+block content
+  h1= title
+  p Welcome to #{title}, section #{section}
