@@ -55,7 +55,6 @@
 <div id="top" style="position:relative">
     <table>
         <tr>
-            <!--<a id="Billboard">SafeRun</a>-->
         </tr>
     </table>
 </div>
@@ -117,34 +116,17 @@
             </td>
             <td>
                 <select id="travelMode" onchange="redrawOrNew();">
-                    <!--          <option value="0">Car/Motorcycle</option>
-                              <option value="1" selected>Bike</option>-->
                     <option value="2">Walk/Run</option>
                 </select>
             </td>
         </tr>
-        <!--    <tr>
-              <td>
-                Avoid Highways:
-              </td>
-              <td>
-                <select id="highways" onchange="redrawOrNew();">
-                  <option value="0" selected>Yes, avoid</option>
-                  <option value="1">No, Allow</option>
-                </select>
-              </td>
-            </tr>-->
         <tr>
             <td>
-                <!--        <a onmouseover="popup('Think of this in terms of right and left turns.<br>CW: more right turns.<br>CCW: more left turns')"
-                           onfocus="this.blur()" title="" onmouseout="kill()" style="color:blue">-->
                 <a>(Counter)Clockwise:</a>
             </td>
             <td>
                 <select id="travelDirection" onchange="reverseOrNew();">
                     <option value="0" selected>Clockwise</option>
-                    <!--          <option value="1">Counter-clockwise</option>
-                            </select>-->
                 </select>
             </td>
         </tr>
@@ -155,14 +137,6 @@
             <td>
                 <select id="travelHeading">
                     <option value="0" selected>any</option>
-                    <!--<option value="1">North</option>
-                    <option value="2">Northeast</option>
-                    <option value="3">East</option>
-                    <option value="4">Southeast</option>
-                    <option value="5">South</option>
-                    <option value="6">Southwest</option>
-                    <option value="7">West</option>
-                    <option value="8">Northwest</option>-->
                 </select>
             </td>
         </tr>
@@ -173,30 +147,10 @@
             <td>
                 <select id="unitSystem">
                     <option value="0" selected>miles, feet</option>
-                    <!--<option value="1">kilometers, meters</option>-->
                 </select>
             </td>
         </tr>
-        <!--    <tr>
-              <td>
-                <a onmouseover="popup('If you live in an area where there are ferries, you can try and get RouteLoops to avoid them.  Or, of course, allow it to use them if that happens')"
-                   onfocus="this.blur()" title="" onmouseout="kill()" style="color:blue">
-                  Travel by ferry is</a>
-              </td>
-              <td>
-                <select id="ferryButton" onchange="toggleFerries();">
-                  <option value="0" selected>Not Allowed</option>
-                  <option value="1">Allowed</option>
-                </select>
-              </td>
-            </tr>-->
-    </table>
-    <!--
-      <a id="modeWarning"><b><i></i></b></a>
-      <br/><hr>
-    -->
-    <!--<strong>Set fixed waypoint:</strong><br/>-->
-    <!--Address: <input id="fixedPoint_0" type="text" value="" size="30" style="background-color:#addfff" onchange="handleFixed(0)"/>-->
+	</table>
 </div>
 <div id="map_canvas" style="height:100%"></div>
 <hr/>
