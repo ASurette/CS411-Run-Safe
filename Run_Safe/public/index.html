@@ -7,101 +7,97 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-</head>
+    <link rel="stylesheet" type="text/css" href="style.css" />
 
 </head>
+
 
 <body ng-app="RunSafe">
 <div ng-controller="RunSafectrl" ng-init="initApp()">
     <img src="/images/runningheader.png">
 
-
-    <h2>Welcome to RunSafe</h2>
-    <script>
-        window.fbAsyncInit = function() {
-            // FB JavaScript SDK configuration and setup
-            FB.init({
-                appId      : '544933225846480', // FB App ID
-                cookie     : true,  // enable cookies to allow the server to access the session
-                xfbml      : true,  // parse social plugins on this page
-                version    : 'v2.8' // use graph api version 2.8
-            });
-
-            // Check whether the user already logged in
-            FB.getLoginStatus(function(response) {
-                if (response.status === 'connected') {
-                    //display user data
-                    getFbUserData();
+    <div id = "title">
+        <center><img src="RunSafeLogo.png"></center>
+            <div/>
+            <script>
+                window.fbAsyncInit = function() {
+                    // FB JavaScript SDK configuration and setup
+                    FB.init({
+                        appId      : '544933225846480', // FB App ID
+                        cookie     : true,  // enable cookies to allow the server to access the session
+                        xfbml      : true,  // parse social plugins on this page
+                        version    : 'v2.8' // use graph api version 2.8
+                    });
+                    // Check whether the user already logged in
+                    FB.getLoginStatus(function(response) {
+                        if (response.status === 'connected') {
+                            //display user data
+                            getFbUserData();
+                        }
+                    });
+                };
+                // Load the JavaScript SDK asynchronously
+                (function(d, s, id) {
+                    var js, fjs = d.getElementsByTagName(s)[0];
+                    if (d.getElementById(id)) return;
+                    js = d.createElement(s); js.id = id;
+                    js.src = 'https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.11&appId=1403736936391861';
+                    fjs.parentNode.insertBefore(js, fjs);
+                }(document, 'script', 'facebook-jssdk'));
+                // Facebook login with JavaScript SDK
+                function fbLogin() {
+                    FB.login(function (response) {
+                        if (response.authResponse) {
+                            // Get and display the user profile data
+                            getFbUserData();
+                            document.getElementById('status').innerHTML = 'User logged in successfully.';
+                            window.location.replace("http://localhost:3000/userinfo.html");
+                        } else {
+                            document.getElementById('status').innerHTML = 'User cancelled login or did not fully authorize.';
+                        }
+                    }, {scope: 'email'});
                 }
-            });
-        };
-
-        // Load the JavaScript SDK asynchronously
-        (function(d, s, id) {
-            var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) return;
-            js = d.createElement(s); js.id = id;
-            js.src = 'https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.11&appId=1403736936391861';
-            fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
-
-        // Facebook login with JavaScript SDK
-        function fbLogin() {
-            FB.login(function (response) {
-                if (response.authResponse) {
-                    // Get and display the user profile data
-                    getFbUserData();
-                    document.getElementById('status').innerHTML = 'User logged in successfully.';
-                    window.location.replace("http://localhost:3000/userinfo.html");
-
-                } else {
-                    document.getElementById('status').innerHTML = 'User cancelled login or did not fully authorize.';
+                // Fetch the user profile data from facebook
+                function getFbUserData(){
+                    FB.api('/me', {locale: 'en_US', fields: 'id,first_name,last_name,email,link,gender,locale'},
+                        function (response) {
+                            document.getElementById('fbLink').setAttribute("onclick","fbLogout()");
+                            document.getElementById('fbLink').innerHTML = 'Logout from Facebook';
+                            document.getElementById('status').innerHTML = 'Thanks for logging in, ' + response.first_name + '!';
+                            //find a way to get this FbUserData to the user schema in users.js to log to mongo
+                            document.getElementById('fbid').innerHTML = response.id;
+                            document.getElementById('first_name').innerHTML = response.first_name;
+                            document.getElementById('last_name').innerHTML = response.last_name;
+                            document.getElementById('username').innerHTML = response.first_name + response.last_name;
+                            document.getElementById('email').innerHTML = response.email;
+                            document.getElementById('gender').innerHTML = response.gender;
+                            document.getElementById('userData').innerHTML = '<p><b>FB ID:</b> '+response.id+'</p><p><b>Name:</b> '+response.first_name+' '+response.last_name+'</p><p><b>Email:</b> '+response.email+'</p><p><b>Gender:</b> '+response.gender+'</p><p><b>Locale:</b> '+response.locale+'</p><p><b>';
+                        });
                 }
-            }, {scope: 'email'});
-        }
+                // Logout from facebook
+                function fbLogout() {
+                    FB.logout(function() {
+                        document.getElementById('fbLink').setAttribute("onclick","fbLogin()");
+                        document.getElementById('fbLink').innerHTML = '<img src="fblogin.png"/>';
+                        document.getElementById('userData').innerHTML = '';
+                        document.getElementById('status').innerHTML = 'You have successfully logged out from Facebook.';
+                    });
+                }
+            </script>
 
-        // Fetch the user profile data from facebook
-        function getFbUserData(){
-            FB.api('/me', {locale: 'en_US', fields: 'id,first_name,last_name,email,link,gender,locale'},
-                function (response) {
-                    document.getElementById('fbLink').setAttribute("onclick","fbLogout()");
-                    document.getElementById('fbLink').innerHTML = 'Logout from Facebook';
-                    document.getElementById('status').innerHTML = 'Thanks for logging in, ' + response.first_name + '!';
+            <!-- Display login status -->
 
-                    //find a way to get this FbUserData to the user schema in users.js to log to mongo
-                    document.getElementById('fbid').innerHTML = response.id;
-                    document.getElementById('first_name').innerHTML = response.first_name;
-                    document.getElementById('last_name').innerHTML = response.last_name;
-                    document.getElementById('username').innerHTML = response.first_name + response.last_name;
-                    document.getElementById('email').innerHTML = response.email;
-                    document.getElementById('gender').innerHTML = response.gender;
-                    document.getElementById('userData').innerHTML = '<p><b>FB ID:</b> '+response.id+'</p><p><b>Name:</b> '+response.first_name+' '+response.last_name+'</p><p><b>Email:</b> '+response.email+'</p><p><b>Gender:</b> '+response.gender+'</p><p><b>Locale:</b> '+response.locale+'</p><p><b>';
-                });
-        }
+            <div id="status"></div>
 
-        // Logout from facebook
-        function fbLogout() {
-            FB.logout(function() {
-                document.getElementById('fbLink').setAttribute("onclick","fbLogin()");
-                document.getElementById('fbLink').innerHTML = '<img src="fblogin.png"/>';
-                document.getElementById('userData').innerHTML = '';
-                document.getElementById('status').innerHTML = 'You have successfully logged out from Facebook.';
-            });
-        }
-    </script>
+            <!-- Facebook login or logout button -->
 
-    <!-- Display login status -->
+            <div>
+                <input id = "fbLogin" type = "button" value = "Login with Facebook" class="btn btn-block btn-primary btn-primary" a href="javascript:void(0);" onclick="fbLogin()"/></inputa>
+                <br>
+                <input id="guest" type="button" value="Continue as Guest" class="btn btn-block btn-primary btn-info" onclick="location.href='routes.html';" />
+            </div>
 
-    <div id="status"></div>
-
-    <!-- Facebook login or logout button -->
-
-    <div>
-        <input id = "fbLogin" type = "button" value = "Login with Facebook" class="btn btn-block btn-primary btn-primary" a href="javascript:void(0);" onclick="fbLogin()"/></inputa>
-        <br>
-        <input id="guest" type="button" value="Continue as Guest" class="btn btn-block btn-primary btn-info" onclick="location.href='routes.html';" />
     </div>
-
 </div>
 </body>
 </html>

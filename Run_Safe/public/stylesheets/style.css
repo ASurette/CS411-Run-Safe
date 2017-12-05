@@ -1,5 +1,5 @@
 body {
-  font-family: arial, sans-serif;
+    font-family: arial, sans-serif;
 }
 .watermark {
   color: #5c5858;
@@ -50,3 +50,24 @@ body {
   font-size: 0.95em;
 }
 .space1 { margin-top: 100px; }
+
+#fbLogin{
+
+    background-color: #4CAF50;
+    text-align: center;
+    height: 50px;
+    width: 175px;
+    margin:0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%
+}
+
+#guest{
+    background-color: #4CAF50;
+    text-align: center;
+    height: 50px;
+    width: 175px;
+    margin:0 auto;
+    position: relative
+}

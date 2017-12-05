@@ -296,6 +296,33 @@ function initialize() {
         codeAddress();
         calcRoute();
     });
+
+    // Add a listener for right-click, used to remove a waypoint.
+    /*    google.maps.event.addListener(map, "rightclick", function (mEvent) {
+            var close = 0;
+            var test = 0;
+            var kill = 0;
+            close = LatLngDist(mEvent.latLng.lat(),mEvent.latLng.lng(),
+                directionsDisplay.directions.routes[0].legs[0].via_waypoint[0].location.lat(),
+                directionsDisplay.directions.routes[0].legs[0].via_waypoint[0].location.lng());
+            for(var i=1;i<directionsDisplay.directions.routes[0].legs[0].via_waypoint.length;i++) {
+                test = LatLngDist(mEvent.latLng.lat(),mEvent.latLng.lng(),
+                    directionsDisplay.directions.routes[0].legs[0].via_waypoint[i].location.lat(),
+                    directionsDisplay.directions.routes[0].legs[0].via_waypoint[i].location.lng());
+                if(test<close) {
+                    close = test;
+                    kill = i;
+                }
+            }
+            var answer = confirm("The waypoint to be removed is at " + directionsDisplay.directions.routes[0].legs[0].via_waypoint[kill].location.toString());
+            if(answer) {
+                directionsDisplay.directions.routes[0].legs[0].via_waypoint.splice(kill,1);
+                rlPoints = new Array();
+                for(var i=0;i<directionsDisplay.directions.routes[0].legs[0].via_waypoint.length;i++) {
+                    rlPoints[i] = directionsDisplay.directions.routes[0].legs[0].via_waypoint[i].location;
+                } calcRoute();
+            }
+        });*/
     if(baseSet){
         createBaseMarker();
         codeAddress();
@@ -382,7 +409,8 @@ function checkForPermalink(currentURL) {
                 DoClean=false;  //make sure it's off, and then...
                 toggleAutoClean();  //turn it on.
             }
-        } else {
+        }
+        else {
             if(haveOldUrl) {
                 document.getElementById("address").value = oldUrlLat +","+ oldUrlLng;
                 BaseLocation = new google.maps.LatLng(oldUrlLat,oldUrlLng);
@@ -722,6 +750,7 @@ function circleRoute(length) {
         delta_lat = dy/110540;
         delta_lng = dx/(111320*Math.cos(center.lat()*Math.PI/180));
         rlPoints[i-1] = new google.maps.LatLng(center.lat()+delta_lat,center.lng()+delta_lng);
+        //placeMarker(pts[i-1],'p'+i);
     }
 }
 //.........................................................................................
@@ -775,7 +804,9 @@ function rectangleRoute(length) {
     var delta_lat = dy/110540;
     var delta_lng = dx/(111320*Math.cos(BaseLocation.lat()*Math.PI/180));
     rlPoints[0] = new google.maps.LatLng(BaseLocation.lat()+delta_lat,BaseLocation.lng()+delta_lng);
-	
+    //alert(" The first corner point will be at " + p1);
+    //placeMarker(p1,'h corner');
+
     angle = sign*theta+direction; // This is defined to be the point along the "diagonal" direction
     var dx = diagonal*Math.cos(angle);
     var dy = diagonal*Math.sin(angle);
@@ -790,6 +821,8 @@ function rectangleRoute(length) {
     var delta_lat = dy/110540;
     var delta_lng = dx/(111320*Math.cos(BaseLocation.lat()*Math.PI/180));
     rlPoints[2] = new google.maps.LatLng(BaseLocation.lat()+delta_lat,BaseLocation.lng()+delta_lng);
+    //alert(" The second corner point will be at " + p3);
+    //placeMarker(p3,'w corner');
     return;
 }
 //.............................................................
@@ -866,7 +899,8 @@ function fig8Route(length) {
     var delta_lat = dy/110540;
     var delta_lng = dx/(111320*Math.cos(BaseLocation.lat()*Math.PI/180));
     center = new google.maps.LatLng(BaseLocation.lat()+delta_lat,BaseLocation.lng()+delta_lng);
-
+    //log(" The second figure 8 center point will be at " + center);
+    //placeMarker(center,'Circle Center');
     //Find circlePoints other points to use
     //First, call the initial direction direction+180, since we are looking in the opposite direction.
     deg.length = 0; // Zero out this array and use it over again here.
@@ -956,6 +990,263 @@ function baseLocation(evt) {
     var baseL = BaseLocation.lat + "," + BaseLocation.lng;
     document.getElementById("address").value = baseL;
     revcodeLocation();
+    return;
+}
+//....................................................................
+function makeTCX() {
+    if(currentRouteData.length<=0){alert("You must have a track before you can create a TCX output file.");return;}
+    //Try to make a more elegant version using the currentRouteData array.
+    //The big problem is that you do not have lat/lng points where you want them, if you want advance warnings.  So in this version,
+    //CREATE those lat/lng points and slip them into the currentRouteDistance array.
+    //Make an array of where the turns actually are.
+    var actualDistance = [];
+    actualDistance.length = 0;
+    for (var i=0;i<currentRouteData.length;i++) {
+        currentRouteData[i].write = false;  // Clear out all current write instructions so that you don't get multiples.
+        if(currentRouteData[i].instructions.length>0) {
+            var len = currentRouteData[i].instructions.length;
+            if(currentRouteData[i].instructions.charAt(len-1) == "*") {
+                currentRouteData[i].instructions.length=0;
+                currentRouteData[i].instructions="";
+            }
+        } if(currentRouteData[i].instructions.length>0)actualDistance.push(currentRouteData[i].dist);
+    } var offset = document.getElementById("tcxAdvance").value;
+    if(document.getElementById("unitSystem").value==0) //This means Imperial units, so convert to meters
+        offset *= 12*2.54/100;
+    //alert("The TCX offset value being used in meters is " + offset);
+    // Loop through currenRouteData and find the locations of the instructions
+    var inum = 0;
+    for(var loop=0; loop<currentRouteData.length; loop++) {
+        if(currentRouteData[loop].instructions.length>0) {
+            if(loop==0 || offset==0) {
+                currentRouteData[loop].write = true;
+                inum++;
+            } else {
+                //OK, this is where you have an instruction.
+                var insDist = currentRouteData[loop].dist;
+                //Now, we WANT to have an instruction before this, so the correct distance for this instruction is
+                var corrDist = insDist - offset;
+                if(corrDist<0)corrDist = insDist/2; //Bit arbitrary, but need to put the instruction somewhere if there is not offset meters to use, yet.
+                //Also, don't let multiple instructions pile up before the actual location itself.  So:
+                if(corrDist<actualDistance[inum-1]) {
+                    corrDist = actualDistance[inum-1] + (actualDistance[inum]-actualDistance[inum-1])*0.25;
+                }
+                //OK, so now we have do do two things.  We have to CREATE a new point at this correct distance, and we have to assign the instruction to it.
+                for(var i=0;i<currentRouteData.length;i++)
+                    if(currentRouteData[i].dist>corrDist)
+                        break;
+                var j = i;
+                i--;
+                //OK, we have the points we want to use.  Now interpolate between those points.
+                //Lots of good material at http://www.movable-type.co.uk/scripts/latlong.html.
+                var distToGo = corrDist - currentRouteData[i].dist;
+                var Lat1 = currentRouteData[i].lat;var lat1 = Lat1*Math.PI/180;
+                var Lon1 = currentRouteData[i].lng;var lon1 = Lon1*Math.PI/180;
+                var Lat2 = currentRouteData[j].lat;var lat2 = Lat2*Math.PI/180;
+                var Lon2 = currentRouteData[j].lng;var lon2 = Lon2*Math.PI/180;
+                var R = 6371; // km
+                var dLat = (lat2-lat1);
+                var dLon = (lon2-lon1);
+
+                //Get the bearing
+                var y = Math.sin(dLon) * Math.cos(lat2);
+                var x = Math.cos(lat1)*Math.sin(lat2) -
+                    Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
+                var brng = Math.atan2(y, x);
+
+                //Now get the destination, given the starting point and the bearing
+                var d = distToGo/1000;  //in km.
+                var lat3 = Math.asin( Math.sin(lat1)*Math.cos(d/R) +
+                    Math.cos(lat1)*Math.sin(d/R)*Math.cos(brng) );
+                var lon3 = lon1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(lat1),
+                    Math.cos(d/R)-Math.sin(lat1)*Math.sin(lat3));
+                var Lat3 = lat3*180/Math.PI;
+                var Lon3 = lon3*180/Math.PI;
+
+                //OK, so we have the new location.  Now we want to slip it into the array at the right point.
+                var txt = currentRouteData[loop].instructions + "*";
+                var temp = new routeData(Lat3,Lon3,corrDist,0,0,false,false,txt,true);
+                currentRouteData.splice(i+1,0,temp);
+                //And now that you have added an element to the array, push the loop along by one so that you don't process this instruction again.
+                loop++;
+                inum++;
+            }
+        }
+    }
+    //Figure out the speed
+    var Dist = routeResult.routes[0].legs[0].distance.value;
+    if(document.getElementById("unitSystem").value == 0) {
+        tcxSpeed = document.getElementById("tcxSpeed").value *(5280*12*2.54/100) /(60*60); //Convert to meters/second
+    } else {
+        tcxSpeed = document.getElementById("tcxSpeed").value *(1000) /(60*60); //Convert to meters/second
+    } if(tcxSpeed!=0) {
+        var Velocity = tcxSpeed;
+        var Time = Dist/Velocity;
+    } else {
+        var Time = routeResult.routes[0].legs[0].duration.value;
+        var Velocity = Dist/Time; //in meters/second
+    }
+    //Make an array to hold the time, in seconds, to reach each point.
+    var Times = [];
+    Time.length = 0;
+    for(var i=0;i<currentRouteData.length;i++) {
+        Time = currentRouteData[i].dist/Velocity;
+        Time = Math.round(Time); //Get rid of fractional seconds because they can lead to odd times, like 3 minutes and 60 seconds.
+        Times.push(Time);
+        if(Times[Times.length-1]==Times[Times.length-2])Times[Time.length-1]++; //Move it up by at least one second.
+    }
+    var currentTime = new Date();
+    var year = currentTime.getFullYear();
+    var month = currentTime.getMonth() + 1;
+    var day = currentTime.getDate();
+    var hour = currentTime.getHours();
+    var minute = currentTime.getMinutes();
+    var name = "RL-" + year + "-" + padZeros(month,2) + "-" + padZeros(day,2) + "-" + padZeros(hour,2) + padZeros(minute,2);
+    if(document.getElementById("tcxName").value=="")document.getElementById("tcxName").value = name;
+    else name = document.getElementById("tcxName").value;
+    var ymd = year + "-" + padZeros(month,2) + "-" + padZeros(day,2);
+    //alert ("The name is " + name);
+    //var generator=window.open('','TCX','height=500,width=800,resizable=yes,scrollbars=yes,menubar=yes');
+    var OutText = "";
+    OutText+="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n";
+    OutText+="<!--\n";
+    OutText+=storeURL()+"\n";
+    OutText+="-->\n";
+    OutText+="<TrainingCenterDatabase xmlns=\"http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd\">\n";
+    OutText+="<Courses>\n";
+    OutText+="  <Course>\n";
+    OutText+="  <Name>"+name+"</Name>\n";
+    OutText+="  <Lap>\n";
+    OutText+="    <TotalTimeSeconds>" + Time + "</TotalTimeSeconds>\n";
+    OutText+="    <DistanceMeters>" + Dist + "</DistanceMeters>\n";
+    OutText+="    <BeginPosition>\n";
+    var Lat = routeResult.routes[0].legs[0].start_location.lat();
+    OutText+="      <LatitudeDegrees>" + Lat + "</LatitudeDegrees>\n";
+    var Lng = routeResult.routes[0].legs[0].start_location.lng();
+    OutText+="      <LongitudeDegrees>" + Lng + "</LongitudeDegrees>\n";
+    OutText+="    </BeginPosition>\n";
+    OutText+="    <EndPosition>\n";
+    var Lat = routeResult.routes[0].legs[0].start_location.lat();
+    OutText+="      <LatitudeDegrees>" + Lat + "</LatitudeDegrees>\n";
+    var Lng = routeResult.routes[0].legs[0].start_location.lng();
+    OutText+="      <LongitudeDegrees>" + Lng + "</LongitudeDegrees>\n";
+    OutText+="    </EndPosition>\n";
+    OutText+="    <Intensity>Active</Intensity>\n";
+    OutText+="    <Cadence>65</Cadence>\n";
+    OutText+="  </Lap>\n";
+    OutText+="  <Track>\n";
+    var step = currentRouteData.length;
+
+    //Write out all of the Track Points
+    for(var i=0;i<step;i++) {
+        OutText+="    <Trackpoint>\n";
+        OutText+="      <Position>\n";
+        var Lat = currentRouteData[i].lat;
+        OutText+="        <LatitudeDegrees>" + Lat + "</LatitudeDegrees>\n";
+        var Lng = currentRouteData[i].lng;
+        OutText+="        <LongitudeDegrees>" + Lng + "</LongitudeDegrees>\n";
+        var Dist = currentRouteData[i].dist;
+        var Time = Times[i];
+        OutText+="      </Position>\n";
+        OutText+="      <DistanceMeters>" + Dist.toFixed(0) + "</DistanceMeters>\n";
+        OutText+="      <Time>"+ymd+"T"+padZeros(hours(Time).toFixed(0),2)
+            +":"+padZeros(minutes(Time).toFixed(0),2)
+            +":"+padZeros(seconds(Time).toFixed(0),2)
+            +"Z</Time>\n";
+        OutText+="    </Trackpoint>\n";
+    } OutText+="  </Track>\n";
+
+    //Write out all of the Course Points
+    var alerts = markerPosition.length;
+    var walk = 0; //This is an index used to walk through the allPoints array to find the next instance of the Lat/Lng where you will write the alert.
+    var inum = 0;
+    for(var i=0;i<currentRouteData.length;i++) {
+        if(currentRouteData[i].write) {
+            var instruct = currentRouteData[i].instructions;
+            var len = instruct.length;
+            if(instruct.charAt(len-1) == "*")instruct=instruct.substring(0,len-1);
+            //Figure out the direction
+            {
+                if(instruct.indexOf("left") >=0 )var type = "Left";
+                else if(instruct.indexOf("right") >=0 )var type = "Right";
+                else if(instruct.indexOf("Continue") >=0 )var type = "Straight";
+                else var type = "Generic";
+            }
+            // Figure out the road
+            {
+                if(instruct.indexOf(" at ") >=0 ) {
+                    var point = instruct.indexOf(" at ");
+                    var road = instruct.substring(point+3);
+                } else if(instruct.indexOf(" onto ") >=0 ) {
+                    var point = instruct.indexOf(" onto ");
+                    var road = instruct.substring(point+5);
+                } else if(instruct.indexOf(" on ") >=0 ) {
+                    var point = instruct.indexOf(" on ");
+                    var road = instruct.substring(point+3);
+                }
+            }
+            var Lat = currentRouteData[i].lat;
+            var Lng = currentRouteData[i].lng;
+            var Tym=Times[i];
+            var CPloc = new google.maps.LatLng(Lat,Lng);
+            // This will show you where the warnings should appear on the GPS device (TCX file)
+            var marker = new google.maps.Marker({
+                position: CPloc,
+                map: map,
+                visible: false,  //DEBUG this on and off
+                icon: 'RLimages/iconb.png',
+                draggable: true
+            });
+            attachInstructionText(marker,inum+": "+instruct);
+            inum++;
+            //alert("Writing item " + i + " of " + alerts + " which is" + instruct);
+            OutText+="  <CoursePoint>\n";
+            var roadOut = cleanUp(road);
+            OutText+="    <Name>" + roadOut + "</Name>\n";
+            OutText+="    <Time>"+ymd+"T"+padZeros(hours(Tym).toFixed(0),2)
+                +":"+padZeros(minutes(Tym).toFixed(0),2) +":"+padZeros(seconds(Tym).toFixed(0),2) +"Z</Time>\n";
+            OutText+="    <Position>\n";
+            OutText+="      <LatitudeDegrees>" + Lat + "</LatitudeDegrees>\n";
+            OutText+="      <LongitudeDegrees>" + Lng + "</LongitudeDegrees>\n";
+            OutText+="    </Position>\n";
+            OutText+="    <PointType>" + type + "</PointType>\n";
+            var instructions = cleanUp(currentRouteData[i].instructions);
+            OutText+="    <Notes><![CDATA[" + instructions +"]]></Notes>\n";
+            OutText+="  </CoursePoint>\n";
+        }
+    }
+    // Crap at the end.  Probably isn't needed.
+    OutText+="  <Creator xsi:type=\"Device_t\">\n";
+    OutText+="    <Name>EDGE705</Name>\n";
+    OutText+="    <UnitId>3670860026</UnitId>\n";
+    OutText+="    <ProductID>625</ProductID>\n";
+    OutText+="    <Version>\n";
+    OutText+="      <VersionMajor>2</VersionMajor>\n";
+    OutText+="      <VersionMinor>90</VersionMinor>\n";
+    OutText+="      <BuildMajor>0</BuildMajor>\n";
+    OutText+="      <BuildMinor>0</BuildMinor>\n";
+    OutText+="    </Version>\n";
+    OutText+="  </Creator>\n";
+    OutText+="</Course>\n";
+    OutText+="</Courses>\n";
+    OutText+="<Author xsi:type=\"Application_t\">\n";
+    OutText+="  <Name>EDGE705</Name>\n";
+    OutText+="  <Build>\n";
+    OutText+="    <Version>\n";
+    OutText+="      <VersionMajor>2</VersionMajor>\n";
+    OutText+="      <VersionMinor>90</VersionMinor>\n";
+    OutText+="      <BuildMajor>0</BuildMajor>\n";
+    OutText+="      <BuildMinor>0</BuildMinor>\n";
+    OutText+="    </Version>\n";
+    OutText+="    <Type>Release</Type>\n";
+    OutText+="  </Build>\n";
+    OutText+="  <LangID>EN</LangID>\n";
+    OutText+="  <PartNumber>006-B0625-00</PartNumber>\n";
+    OutText+="</Author>\n";
+    OutText+="</TrainingCenterDatabase>\n";
+
+    var blob = new Blob([OutText], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, name+".tcx");
     return;
 }
 //...............................................................................................
@@ -1115,11 +1406,11 @@ function toggleAutoClean() {
     if(DoClean) //You are cleaning.  Want to turn it off, and set the button to turn it on.
     {
         DoClean = false;
-/*        if(Language=="JP")
-            document.getElementById("toggleClean").value="オートクリーンをオンにする";
-        else if(Language=="FR")
-            document.getElementById("toggleClean").value="Activer AutoClean";
-        else*/
+        /*        if(Language=="JP")
+                    document.getElementById("toggleClean").value="オートクリーンをオンにする";
+                else if(Language=="FR")
+                    document.getElementById("toggleClean").value="Activer AutoClean";
+                else*/
         document.getElementById("toggleClean").value="Turn AutoClean On";
         document.getElementById("toggleClean").className="butt3";
     }
@@ -1208,6 +1499,7 @@ function drawElevationPlot() {
     }
     // Create a PathElevationRequest object using this array.
     // Ask for 256 samples along that path.
+    //alert("Making an elevation request of " + allPoints.length + " points.");
     //There is a limitation on the elevation service from google, which says that in each query to the service you
     //can have no more than 1024 requests.  So here we make a thinned out array, rather than using all of allPoints.
     var thinnedArray = [];
@@ -2467,4 +2759,3 @@ function spritePosition(type) {
         "Vandalism":  240
     }[type];
 }
-
