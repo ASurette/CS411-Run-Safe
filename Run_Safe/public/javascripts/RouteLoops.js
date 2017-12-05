@@ -3,7 +3,6 @@ var rendererOptions = {draggable: true, polylineOptions:{strokeColor:"#FF0000"} 
 var directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
 var directionsService = new google.maps.DirectionsService();
 var geocoder;
-var elevator;
 
 //The map, related stuff, and other icons
 var map;
@@ -11,14 +10,10 @@ var center;
 var baseSet = new Boolean();
 var BaseMarker;
 var BaseMarkerAction;
-var homeIcon = './RLimages/Home.png';
+//var homeIcon = './RLimages/Home.png';
 var pitchMarker;
 var BaseLocation = new google.maps.LatLng(42.349,-71.104); //111 Cummington Mall
-var W3CLocation;
-var browserSupportFlag =  new Boolean();
-var gotW3Clocation = new Boolean();
-var countW3C = 0;
-
+var elevator;
 
 //The current route
 var travelMode,travelDirection,travelHeading;
@@ -72,17 +67,9 @@ var haveEmbedded = new Boolean();
 var oldUrlLng,oldUrlLat;
 var oldUrlLen;
 var oldUrlRnd;
-// var OldUrlAllow;
 
-//Mile markers
-// var numMM;
 var mileMarkers = [];
 var rideStart;  //This is the day and time of the start of the ride, used for predicting the weather.
-
-//Stuff for integration with the RouteLoops engine
-var RlUrl;
-var RLroutes = [];
-var myText;
 
 
 // Load the Visualization API and the columnchart package.
@@ -90,28 +77,20 @@ google.load("visualization", "1", {packages: ["columnchart"]});
 var elevDist = [];
 
 //For importing GPS files
-var pointArray = [];
-var importedPolyline = [];
 var importedTracks = new Array;
 
 //Cleaning up the tails
 var DoClean = true;
 var countCalcs = 0; //Count how many times you call calcRoute()
-// var circleArray = [];
-// var circleAsked = [];
-var wayFlags = [];
 
 //Various flags
 var ePlot = false;
-var rtTraffic = false;
-var rtWeather = false;
 var showingMarkers = false;
-
-//Ruler stuff
-/*var measuring = false;
-var rulerMarkers = new Array;
-var rulerClickListener;
-var rulerLine;*/
+var showingCrime = false;
+var infowindow = new google.maps.InfoWindow({
+    content: '',
+    maxWidth: 400
+});
 
 //Language
 var Language = new String();
@@ -122,8 +101,10 @@ var KM2MILES = 1/MILES2KM;
 var Feet2Meters = 12*2.54/100;
 
 //Cue sheet
-var cueText;
 var Directions;
+
+//Crime markers
+var crime_markers = [];
 
 //New map tile layers.
 var OpenCycleMapTypeOptions = {
@@ -218,7 +199,6 @@ var iAmRotating = false;
 //...................................................................
 function initialize() {
     BBgo();
-    extractLanguage();
     var currentURL = location.href;
     var query="";
     if(currentURL.indexOf("?")>=0)
@@ -305,7 +285,6 @@ function initialize() {
         routeResult = directionsDisplay.directions;
         computeTotalDistance(routeResult);
         buildDirections(routeResult);
-        flagPoints();
         storeRouteData();
     });
 
@@ -319,7 +298,7 @@ function initialize() {
     });
 
     // Add a listener for right-click, used to remove a waypoint.
-    google.maps.event.addListener(map, "rightclick", function (mEvent) {
+/*    google.maps.event.addListener(map, "rightclick", function (mEvent) {
         var close = 0;
         var test = 0;
         var kill = 0;
@@ -343,7 +322,7 @@ function initialize() {
                 rlPoints[i] = directionsDisplay.directions.routes[0].legs[0].via_waypoint[i].location;
             } calcRoute();
         }
-    });
+    });*/
     if(baseSet){
         createBaseMarker();
         codeAddress();
@@ -359,31 +338,6 @@ function initialize() {
     permalink = protocol+"//"+host+"/OSM";
     document.getElementById("OSMversion").href = permalink;
     if(query.length>0 && baseSet)calcRoute(); //So, if you came in with a permalink, create the route.
-}
-//......................................................................................
-function getW3Clocation() {
-    //alert("trying w3c");
-    countW3C++;
-    browserSupportFlag = true;
-    navigator.geolocation.getCurrentPosition(function(position) {
-            W3CLocation = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
-            gotW3Clocation = true;
-            BaseLocation = W3CLocation;
-            map.setCenter(BaseLocation);
-            map.setZoom(13);
-            //alert("Got W3C location " + W3CLocation.toString());
-            var infowindow = new google.maps.InfoWindow();
-            //contentString = "You are here.<br>Double click on map to set this location as your starting point.";
-            document.getElementById("address").value = BaseLocation.toString();
-            codeAddress();
-        },
-        function() {
-            BaseLocation = new google.maps.LatLng(42,-71);
-            gotW3Clocation = false;
-            //alert("Did not get W3C location " + W3CLocation.toString());
-        },
-        {maximumAge:1000}
-    ); return;
 }
 //..................................................................................................
 //Function for overlaying tile types.
@@ -512,7 +466,6 @@ function codeAddress() {
                 BaseMarker = placeMarker(BaseLocation,'Home - Start/Stop');
                 map.setCenter(BaseLocation);
                 BaseMarker.setZIndex(1000);
-                BaseMarker.setIcon(homeIcon);
                 BaseMarker.setTitle("Start/Stop @ " + results[0].formatted_address);
                 document.getElementById("address").value = results[0].formatted_address;
                 if(BaseMarkerAction)google.maps.event.removeListener(BaseMarkerAction);
@@ -527,8 +480,6 @@ function codeAddress() {
                 for(var i=0;i<list;i++) {
                     if(results[0].address_components[i].types=="country,political")Country=results[0].address_components[i].long_name;
                 }
-                //alert("Geocode country result is " + Country);
-
                 if (Language=="EN")
                     document.getElementById("GoButton").innerHTML="Create a Route of this Length";
                 resolve(results[0]);
@@ -652,7 +603,6 @@ function examineRoute(response,status) {
             document.getElementById("modeWarning").innerHTML = "<b><i>"+response.routes[0].warnings[0]+"</i></b>";
         else
             document.getElementById("modeWarning").innerHTML = "";
-        flagPoints();
         storeRouteData();
         makePermalink();
         writeCookies();
@@ -1456,11 +1406,11 @@ function toggleAutoClean() {
     if(DoClean) //You are cleaning.  Want to turn it off, and set the button to turn it on.
     {
         DoClean = false;
-        /*        if(Language=="JP")
-                    document.getElementById("toggleClean").value="オートクリーンをオンにする";
-                else if(Language=="FR")
-                    document.getElementById("toggleClean").value="Activer AutoClean";
-                else*/
+/*        if(Language=="JP")
+            document.getElementById("toggleClean").value="オートクリーンをオンにする";
+        else if(Language=="FR")
+            document.getElementById("toggleClean").value="Activer AutoClean";
+        else*/
         document.getElementById("toggleClean").value="Turn AutoClean On";
         document.getElementById("toggleClean").className="butt3";
     }
@@ -2587,44 +2537,6 @@ function adjustScale() {
         }
     } return;
 }
-//............................................................................
-function flagPoints() {
-    var dDd = routeResult.routes[0].legs[0];
-    //Clear any existing flags.
-    for (var i = 0; i < wayFlags.length; i++) {
-        wayFlags[i].setMap(null);
-    }
-    wayFlags.length = 0;
-    //Put little flags on the waypoints.
-    for (var pnt in dDd.via_waypoint) {
-        var location = dDd.via_waypoint[pnt].location;
-        var size = new google.maps.Size(60,44);
-        var origin = new google.maps.Point(0,0);
-        var anchor = new google.maps.Point(30,44);
-        var scaledSize = new google.maps.Size(60,44);
-        var flagNum = parseInt(pnt)+1;
-        var file = "RLimages/Flag" + flagNum + ".png";
-        var icon = new google.maps.MarkerImage(file,size,origin,anchor,scaledSize);
-        var title = "Click the flag to delete waypoint #" + pnt;
-        google.maps.event.addListener(waypointMarker, 'click', function(mEvent) {
-            var close = 0;
-            var test = 0;
-            var kill = 0;
-            close = LatLngDist(mEvent.latLng.lat(),mEvent.latLng.lng(),
-                routeResult.routes[0].legs[0].via_waypoint[0].location.lat(),
-                routeResult.routes[0].legs[0].via_waypoint[0].location.lng());
-            for(var i=1;i<routeResult.routes[0].legs[0].via_waypoint.length;i++) {
-                test = LatLngDist(mEvent.latLng.lat(),mEvent.latLng.lng(),
-                    routeResult.routes[0].legs[0].via_waypoint[i].location.lat(),
-                    routeResult.routes[0].legs[0].via_waypoint[i].location.lng());
-                if(test<close) {
-                    close = test;
-                    kill = i;
-                }
-            }
-        });
-    }
-}
 //....................................................................
 function resetScale() {
     scaleCount = 0;
@@ -2632,17 +2544,6 @@ function resetScale() {
     tooLong = 0;
     tooShort = 0;
     return;
-}
-//....................................................................
-function extractLanguage() {
-    var currentURL = location.href;
-    var protocol = location.protocol;
-    var host = location.host;
-    var path = location.pathname;
-    //alert("URL " + currentURL + " protocol " + protocol + " host " + host + " path " + path);
-    Language = "EN";
-    if(path.indexOf("-JP") >= 0 )Language = "JP";
-    else if(path.indexOf("-FR") >= 0 )Language = "FR";
 }
 //......................................................................
 function createSpacedPath() {
@@ -2746,3 +2647,116 @@ function BBgo() {
         clearInterval(rotatingMessage);
     } return;
 }
+//.................................................................................................................
+function showCrime() {
+    var radius = 0.05;
+    var lat = BaseLocation.lat();
+    var lng = BaseLocation.lng();
+
+    if (!showingCrime)  //You are not showing crime and you want to.
+    {
+        showingCrime = true;
+        document.getElementById("showCrime").value = "Turn crime activity off";
+        loadCrimes(lat,lng,radius);
+    }
+    else if (showingCrime) //You are showing them, and you want to stop.
+    {
+        showingCrime = false;
+        document.getElementById("showCrime").value = "Turn crime activity on";
+        $.each(crime_markers, function(index, value) {
+            value.setMap(null);
+        });
+        crime_markers = [];
+    }
+}
+
+function loadCrimes(lat, lng, radius) {
+    if (typeof(radius) === 'undefined' || radius === null) { radius = 0.05; }
+    $.each(crime_markers, function(index, value) {
+        value.setMap(null);
+    });
+    crime_markers = [];
+
+    var url = "//api.spotcrime.com/crimes.json?";
+    url += "lat="+lat;
+    url += "&lon="+lng;
+    url += "&radius="+radius;
+    url += "&callback=?";
+    url += "&key=privatekeyforspotcrimepublicusers-commercialuse-877.410.1607";
+
+    $.getJSON(url, function(data) {
+        if (data === null) {
+            $('#table_container').empty();
+            $('#table_container2').empty();
+            $('#table_container3').empty();
+            return;
+        }
+
+        var bounds = new google.maps.LatLngBounds();
+        var totalCount = data.crimes.length;
+
+        /* render crimes */
+        $('#table_container').empty();
+        $('#table_container2').empty();
+        $('#table_container3').empty();
+        $.each(data.crimes, function(index, crime) {
+            var spriteX = spritePosition(crime.type);
+            var zIndex = totalCount - index;
+            if (crime.type == "Other") {
+                zIndex = 0;
+            }
+            var link = crime.link;
+            link = link.replace('https://spotcrime.com/crime/', 'https://spotcrime.com/mobile/crime/?')
+
+            /* render marker */
+            var marker = new google.maps.Marker({
+                map: map,
+                zIndex: zIndex,
+                position: new google.maps.LatLng(crime.lat, crime.lon),
+                // icon: new google.maps.MarkerImage('../images/icons/spotcrime_info/spotcrime-icons-sprite.png', new google.maps.Size(30, 25), new google.maps.Point(spriteX, 0)),
+                icon: new google.maps.MarkerImage('//s3.amazonaws.com/s3.mylocalcrime.com/images/icons/spotcrime_info/spotcrime-icons-sprite.png', new google.maps.Size(30, 25), new google.maps.Point(spriteX, 0)),
+                title: crime.type
+            });
+            bounds.extend(marker.getPosition());
+            var infowindow_content = '<div class="infowindow"><h4>' + crime.type + '</h4><p>' + crime.address + '</p><p>' + crime.date + '</p><p><a href="' + link + '" target="_blank">More information</a></p></div>';
+            google.maps.event.addListener(marker, 'click', function(event) {
+                infowindow.setContent(infowindow_content);
+                infowindow.open(map, marker);
+            });
+            crime_markers.push(marker);
+
+            /* listing */
+            $record = $(
+                '<a href="' + link + '" target="_blank" class="list-group-item clearfix">' +
+                '<h4 class="list-group-item-heading"><div class="crime-type crime-type-' + crime.type.toLowerCase() + '"><span /></div>' + crime.type + '</h4>' +
+                '<p class="list-group-item-text crime-date">' + crime.date + '</p>' +
+                '<p class="list-group-item-text crime-address">' + crime.address + '</p>' +
+                '</a>');
+
+            if (index < 2) {
+                $('#table_container').append($record);
+            }
+            else if (index >= 2 && index < 7) {
+                $('#table_container2').append($record);
+            }
+            else {
+                $('#table_container3').append($record);
+            }
+        });
+    });
+}
+
+function spritePosition(type) {
+    return {
+        "Arrest":     0,
+        "Arson":      30,
+        "Assault":    60,
+        "Burglary":   90,
+        "Other":      120,
+        "Robbery":    150,
+        "Shooting":   180,
+        "Theft":      210,
+        "Vandalism":  240
+    }[type];
+}
+
