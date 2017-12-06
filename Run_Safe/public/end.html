@@ -28,14 +28,16 @@
 
 <h2>Run Complete!</h2>
     <p>Run Stats:</p>
-    <p>Starting Point:</p>
-    <div id="MyEdit"> This text will change 
-		<script src="C:\Users\Adam\Documents\GitHub\CS411-Run-Safe\RouteLoops.js"></script>
-		<script>
-			getDistance();
-		</script>
-	</div>
-
+    <p>Starting Point: <span id="start"></span></p>
+    <script>
+        document.getElementById("start").innerHTML = localStorage.getItem("start");
+    </script>
+    </div>
+    <p>Distance: <span id="result"></span> </p>
+    <script>
+        document.getElementById("result").innerHTML = localStorage.getItem("distance");
+    </script>
+    </div>
 
     <div>
         <form class="form-inline" name="inputForm">
