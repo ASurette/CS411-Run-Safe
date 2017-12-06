@@ -10,6 +10,7 @@ var center;
 var baseSet = new Boolean();
 var BaseMarker;
 var BaseMarkerAction;
+//var homeIcon = './RLimages/Home.png';
 var pitchMarker;
 var BaseLocation = new google.maps.LatLng(42.349,-71.104); //111 Cummington Mall
 var elevator;
@@ -195,7 +196,7 @@ var rotateIndex = -1;
 var rotatingMessages = new Array;
 var rotatingMessage;
 var iAmRotating = false;
-//...................................................................
+//.................................................................................................................
 function initialize() {
     BBgo();
     var currentURL = location.href;
@@ -271,7 +272,9 @@ function initialize() {
     directionsDisplay.setMap(map);
     directionsDisplay.setPanel(document.getElementById("directionsPanel"));  //Turn this on to allow Google to create textual directions
     trafficLayer = new google.maps.TrafficLayer();
-   
+    weatherLayer = new google.maps.weather.WeatherLayer({
+        temperatureUnits: google.maps.weather.TemperatureUnit.FAHRENHEIT
+    });
     // Instantiate an info window to hold step text.
     stepDisplay = new google.maps.InfoWindow({pixelOffset:{width:00, height:-30} });
 
@@ -303,10 +306,12 @@ function initialize() {
     var host = location.host;
     var path = location.pathname;
     permalink = protocol+"//"+host+path;
-    document.getElementById("permalink").href = permalink;
+    //document.getElementById("permalink").href = permalink;
+    //Also, make one that will take you back over to Google Maps.
+    permalink = protocol+"//"+host+"/OSM";
     if(query.length>0 && baseSet)calcRoute(); //So, if you came in with a permalink, create the route.
 }
-//..................................................................................................
+//.................................................................................................................
 //Function for overlaying tile types.
 // Normalizes the coords that tiles repeat across the x axis (horizontally)
 // like the standard Google map tiles.
@@ -328,7 +333,7 @@ function getNormalizedCoord(coord, zoom) {
         y: y
     };
 }
-//......................................................................................
+//.................................................................................................................
 function checkForPermalink(currentURL) {
     //Quick check for a URL intended to enable routeloops from the Chrome search bar.
     var split1 = currentURL.split('?');
@@ -374,7 +379,7 @@ function checkForPermalink(currentURL) {
             }
             else if(uClean){
                 DoClean=false;  //make sure it's off, and then...
-                toggleAutoClean();  //turn it on.
+                //toggleAutoClean();  //turn it on.
             }
         }
         else {
@@ -391,7 +396,7 @@ function checkForPermalink(currentURL) {
         }
     } return;
 }
-//......................................................................................
+//.................................................................................................................
 function checkForCookies() {
     //Check to see if we have any cookie information to start with
     var CookieLength  = readCookie("length");
@@ -422,7 +427,7 @@ function checkForCookies() {
         document.getElementById("tcxSpeedUnits").innerHTML = "kph";
     } return;
 }
-//......................................................................................
+//.................................................................................................................
 function codeAddress() {
     return new Promise(function(resolve,reject){
         var address = document.getElementById("address").value;
@@ -459,7 +464,7 @@ function codeAddress() {
         });
     }); return;
 }
-//........................................................................
+//.................................................................................................................
 function getRLpoints() {
     for(var i=0;i<importedTracks.length;i++)
         if(importedTracks[i])importedTracks[i].setMap(null);
@@ -485,7 +490,7 @@ function getRLpoints() {
         }
     } return;
 }
-//.....................................................................................
+//.................................................................................................................
 function calcRoute() {
     if(rlPoints.length==0)return;  //There is no reason to be here, yet.  You might have gotten here because people were changing Settings.
     countCalcs++;
@@ -531,7 +536,7 @@ function calcRoute() {
     directionsService.route(request, examineRoute);
     return;
 }
-//.....................................................................................
+//.................................................................................................................
 function examineRoute(response,status) {
     var thisRoute = response.routes[0].legs[0];
     routeLatLng.length=0;
@@ -567,10 +572,10 @@ function examineRoute(response,status) {
         showSteps(response);
         directionsDisplay.setDirections(response);
         if(storeInHistory)makeHistory(response);
-        if(response.routes[0].warnings.length>0)
+        /*if(response.routes[0].warnings.length>0)
             document.getElementById("modeWarning").innerHTML = "<b><i>"+response.routes[0].warnings[0]+"</i></b>";
         else
-            document.getElementById("modeWarning").innerHTML = "";
+            document.getElementById("modeWarning").innerHTML = "";*/
         storeRouteData();
         makePermalink();
         writeCookies();
@@ -578,7 +583,7 @@ function examineRoute(response,status) {
         document.getElementById("GoButton").innerHTML="Create a Different Route<br/>of the Same Length";
     } return;
 }
-//...............................................................................................
+//.................................................................................................................
 function computeTotalDistance(result) {
     var total = 0;
     var myroute = result.routes[0];
@@ -604,7 +609,7 @@ function computeTotalDistance(result) {
     }
     return;
 }
-//....................................................................................................................
+//.................................................................................................................
 function changeSpeed() {
     var total = totalDistanceInCurrentUnits;
     var timeTot;
@@ -622,7 +627,7 @@ function changeSpeed() {
     document.getElementById("routeTime").innerHTML = timeText;
     return;
 }
-//....................................................................................................................
+//.................................................................................................................
 function fixedPointRoute(length) {
     //How far is it to your fixed point?
     var distToFixed = computeDistanceBetween(BaseLocation,fixedPoints[0].marker.getPosition());
@@ -655,7 +660,7 @@ function fixedPointRoute(length) {
         rlPoints.push(toHere2);
     } return;
 }
-//....................................................................................................................
+//.................................................................................................................
 function circleRoute(length) {
     //alert("Doing a circular route");
     var radius = length/2/Math.PI;
@@ -707,7 +712,7 @@ function circleRoute(length) {
         //placeMarker(pts[i-1],'p'+i);
     }
 }
-//.........................................................................................
+//.................................................................................................................
 function rectangleRoute(length) {
     //alert("Doing a rectangular route");
     var direction = 0;
@@ -779,7 +784,7 @@ function rectangleRoute(length) {
     //placeMarker(p3,'w corner');
     return;
 }
-//.............................................................
+//.................................................................................................................
 function fig8Route(length) {
     /*
   The figure 8 will be done as 2 circles, each of half the desired length.
@@ -871,7 +876,7 @@ function fig8Route(length) {
         //placeMarker(pts[i-1],'p'+i);
     } return;
 }
-//...............................................................
+//.................................................................................................................
 function LatLngDist(lat1,lon1,lat2,lon2) {
     //Check the distance between these points -- returns a value in km.
     var R = 6371; // km
@@ -885,15 +890,15 @@ function LatLngDist(lat1,lon1,lat2,lon2) {
     //log("The separation between these points is " + d);
     return d;
 }
-//...............................................................
+//.................................................................................................................
 function hours(secs) {
     return Math.floor(Math.max(secs,0)/3600.0);
 }
-//...............................................................
+//.................................................................................................................
 function minutes(secs) {
     return Math.floor((Math.max(secs,0) % 3600.0)/60.0);
 }
-//...........................................................................................
+//.................................................................................................................
 function placeMarker(location,text) {
     var marker = new google.maps.Marker({
         position: location,
@@ -904,20 +909,20 @@ function placeMarker(location,text) {
     //map.setCenter(location);
     return marker;
 }
-//............................................................................
+//.................................................................................................................
 function createBaseMarker() {
     //Put down the base marker using the current base location.
     if(BaseMarker)BaseMarker.setMap(null);
     var Address = document.getElementById("address").value;
     BaseMarker = placeBase(BaseLocation,'Start/End at:' + Address);
     BaseMarker.setZIndex(1000);
-    BaseMarker.setIcon(homeIcon);
+    //BaseMarker.setIcon(homeIcon);
     //lmclmc fix this!
     google.maps.event.removeListener(BaseMarkerAction);
     BaseMarkerAction = google.maps.event.addListener(BaseMarker,'dragend',baseLocation);
     return;
 }
-//.....................................................................................
+//.................................................................................................................
 function placeBase(location,text) {
     var marker = new google.maps.Marker({
         position:location,
@@ -926,7 +931,7 @@ function placeBase(location,text) {
         title: text
     }); return marker;
 }
-//..........................................................................................
+//.................................................................................................................
 function baseLocation(evt) {
     BaseLocation.lat = evt.srcObject.latLng.lat;
     BaseLocation.lng = evt.srcObject.latLng.lng;
@@ -935,7 +940,7 @@ function baseLocation(evt) {
     revcodeLocation();
     return;
 }
-//........................................................................................................................
+//.................................................................................................................
 function showSteps(result) {
     // For each step, place a marker, and add the text to the marker's info window. Also attach the marker to an array so we
     // can keep track of it and remove it when calculating new  routes.
@@ -1039,7 +1044,7 @@ function showSteps(result) {
     buildDirections(result);
     return;
 }
-//.......................................................................................................
+//.................................................................................................................
 function reverseOrNew() {
     // This function is used if the user changes the travelDirection parameter.  If there is no path yet, just get points and make route.
     // But if there IS a path, reverse the direction of the waypoints and the just recalculate the route.
@@ -1052,7 +1057,7 @@ function reverseOrNew() {
         calcRoute();
     }
 }
-//........................................................................................
+//.................................................................................................................
 function redrawOrNew(flag) {
     // This function is used whenever you want to update things on the map without changing the route. If there is no path yet, just get points and make route..
     // But if there IS a path, load up the waypoints and then just recalculate the route.
@@ -1064,34 +1069,30 @@ function redrawOrNew(flag) {
         calcRoute();
     } return;
 }
-//..............................................................................................
+//.................................................................................................................
 function toggleAutoClean() {
     if(DoClean) //You are cleaning.  Want to turn it off, and set the button to turn it on.
     {
         DoClean = false;
-        /*        if(Language=="JP")
-                    document.getElementById("toggleClean").value="オートクリーンをオンにする";
-                else if(Language=="FR")
-                    document.getElementById("toggleClean").value="Activer AutoClean";
-                else*/
+/*        if(Language=="JP")
+            document.getElementById("toggleClean").value="オートクリーンをオンにする";
+        else if(Language=="FR")
+            document.getElementById("toggleClean").value="Activer AutoClean";
+        else*/
         document.getElementById("toggleClean").value="Turn AutoClean On";
-        document.getElementById("toggleClean").className="butt3";
+//        document.getElementById("toggleClean").className="butt3";
     }
     else if(!DoClean) //You are not cleaning.  Want to turn it on, set the button to turn it off.
     {
         DoClean = true;
-        /*if(Language=="JP")
-            document.getElementById("toggleClean").value="オートクリーンをオフにする";
-        else if(Language=="FR")
-            document.getElementById("toggleClean").value="Désactiver AutoClean";
-        else*/
+
         document.getElementById("toggleClean").value="Turn AutoClean Off";
         document.getElementById("toggleClean").className="butt1";
     }
     var CookieClean   = document.getElementById("toggleClean").value;
     createCookie("Clean",CookieClean);
 }
-//.................................................................................................
+//.................................................................................................................
 function dragNoDrag(path) {
     if(path==0){//Lock it.
         directionsDisplay.setOptions({draggable:false});
@@ -1110,7 +1111,7 @@ function dragNoDrag(path) {
         }
     } return;
 }
-//..................................................................................
+//.................................................................................................................
 function toggleElevation() {
     if(!ePlot) //You are not showing the elevation plot and you want to start
     {
@@ -1143,7 +1144,7 @@ function toggleElevation() {
         document.getElementById("ecButton").style.display = "none";
     } return;
 }
-//....................................................................................
+//.................................................................................................................
 function drawElevationPlot() {
     var allPoints = [];
     // Create a new chart in the elevation_chart DIV.
@@ -1185,7 +1186,7 @@ function drawElevationPlot() {
     // Initiate the path request.
     elevator.getElevationAlongPath(pathRequest, plotElevation);
 }
-//.......................................................................................................
+//.................................................................................................................
 function plotElevation(results, status) {
 // Takes an array of ElevationResult objects
 // and plots the elevation profile on a Visualization API ColumnChart.
@@ -1233,7 +1234,7 @@ function plotElevation(results, status) {
         alert ("The Elevation Service did not return OK.  Returned: " + status);
     }
 }
-//...........................................................................................
+//.................................................................................................................
 function myMouseOverHandler(mE) {
     //alert("event " + mE.row);
     if(document.getElementById("unitSystem").value == 0) {
@@ -1272,11 +1273,11 @@ function myMouseOverHandler(mE) {
         // icon: 'RLimages/OldBike2.png'
     });
 }
-//..................................................................................................
+//.................................................................................................................
 function myMouseOutHandler(mE) {
     bikeMarker.setMap(null);
 }
-//..................................................................................................
+//.................................................................................................................
 function placeMileMarkers() {
     var Dist;
     var LastDist;
@@ -1386,13 +1387,9 @@ function placeMileMarkers() {
         for (var i = 0; i < mileMarkers.length; i++) {
             mileMarkers[i].marker.setMap(null);
         }
-    }
-    //Put weather information based on the expected arrival time at each distance marker.
-    if(mileMarkers.length>0) {
-        getAndWriteWeatherInfo(0);
     } return;
 }
-//......................................................................................................
+//.................................................................................................................
 function routeData(lat,lng,dist,height,pitch,peak,trough,instructions,write){
     this.lat = lat;  //degrees
     this.lng = lng;  //degrees
@@ -1404,7 +1401,7 @@ function routeData(lat,lng,dist,height,pitch,peak,trough,instructions,write){
     this.instructions = instructions;
     this.write = write;
 }
-//......................................................................................................
+//.................................................................................................................
 function storeRouteData() {
     currentRouteData.length = 0;
     var thisRoute = routeResult.routes[0].legs[0];
@@ -1454,7 +1451,7 @@ function storeRouteData() {
     createSpacedPath();
     return;
 }
-//......................................................................................................
+//.................................................................................................................
 function getSingleElevation(i) {
     var Lat = useThis[i].lat;
     var Lng = useThis[i].lng;
@@ -1480,7 +1477,7 @@ function getSingleElevation(i) {
         }
     }); return;
 }
-//......................................................................................................
+//.................................................................................................................
 function getMultipleElevations(i) {
     var locations = [];
     var start = i;
@@ -1515,7 +1512,7 @@ function getMultipleElevations(i) {
         }
     }); return;
 }
-//......................................................................................................
+//.................................................................................................................
 function profileRoute() {
     var Profile = new String();
     for(var i=0;i<useThis.length;i++) {
@@ -1650,7 +1647,7 @@ function profileRoute() {
         document.getElementById("Grade").innerHTML = "Hard(" + (maxPitch*100).toFixed(1) +"%)";
     //alert("Climb range = " + ClimbRange + " Pitch = " + maxPitch*100 +"%" + " at " + useThis[maxPindex].dist/1000 + " km.");
 }
-//......................................................................................................
+//.................................................................................................................
 function attachInstructionText(marker, text) {
     google.maps.event.addListener(marker, 'click', function() {
         stepDisplay.setContent(text);
@@ -1680,13 +1677,14 @@ function makePermalink() {
     extra = "?Base="+BaseLocation.lat()+":"+BaseLocation.lng()+"&"+wptString;
     extra = extra + "tM=" + travelMode;
     extra = extra + "&len=" + document.getElementById("length").value;
-    extra = extra + "&unitS=" + document.getElementById("unitSystem").value;
+    extra = extra + "&unitS=" + 0;
     extra = extra + "&doClean=" + DoClean;
     permalink = protocol+"//"+host+path + extra;
     document.getElementById("permalink").href = permalink;
+    console.log(permalink);
     //Make a version that will take you to the OSM version, with this route.
-    permalink = protocol+"//"+host+path+"/OSM" + extra;
-    document.getElementById("OSMversion").href = permalink;
+    //document.getElementById("OSMversion").href = permalink;
+    localStorage.setItem("link", permalink);
     return;
 }
 //.................................................................................................................
@@ -1697,13 +1695,13 @@ function writeCookies() {
     var CookieTM      = document.getElementById("travelMode").value;
     var CookieTD      = document.getElementById("travelDirection").value;
     var CookieUS      = document.getElementById("unitSystem").value;
-    var CookieClean   = document.getElementById("toggleClean").value;
+    // var CookieClean   = document.getElementById("toggleClean").value;
     createCookie("address",CookieAddress);
     createCookie("length",CookieLength);
     createCookie("TM",CookieTM);
     createCookie("TD",CookieTD);
     createCookie("US",CookieUS);
-    createCookie("Clean",CookieClean);
+    //createCookie("Clean",CookieClean);
     return;
 }
 //.................................................................................................................
@@ -2113,7 +2111,6 @@ function cleanTails(response) {
         pLdist.push(cumulative);
         newPath.push(pLpoints[i]);
     } newPath.push(pLpoints[pLpoints.length-1]);
-    //alert("Cumulative distance is " + cumulative);
 
     //Find the point, ahead of each point, to which each point is closest.
     var closest;
@@ -2147,13 +2144,6 @@ function cleanTails(response) {
         {
             tailSize = (pLdist[pLclose[i]] - pLdist[i])/cumulative;
             if(tailSize<0.2) {
-                /*
-	      var marker = new google.maps.Marker({
-		position: pLpoints[i],
-		    map: map
-		    });
-	      attachInstructionText(marker, "Tail between" + i +","+ pLclose[i]);
-	      */
                 i = pLclose[i]; //Jump ahead, over this tail.
             }
         }
@@ -2230,7 +2220,7 @@ function compareToPlan(response) {
         }
     } return retflag;
 }
-//............................................................................
+//.................................................................................................................
 function getLength() {
     var length = document.getElementById("length").value;
     if(document.getElementById("unitSystem").value == 0) {
@@ -2514,3 +2504,4 @@ function spritePosition(type) {
         "Vandalism":  240
     }[type];
 }
+//.................................................................................................................
