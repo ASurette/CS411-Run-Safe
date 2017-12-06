@@ -10,7 +10,6 @@ var center;
 var baseSet = new Boolean();
 var BaseMarker;
 var BaseMarkerAction;
-//var homeIcon = './RLimages/Home.png';
 var pitchMarker;
 var BaseLocation = new google.maps.LatLng(42.349,-71.104); //111 Cummington Mall
 var elevator;
@@ -272,9 +271,7 @@ function initialize() {
     directionsDisplay.setMap(map);
     directionsDisplay.setPanel(document.getElementById("directionsPanel"));  //Turn this on to allow Google to create textual directions
     trafficLayer = new google.maps.TrafficLayer();
-    weatherLayer = new google.maps.weather.WeatherLayer({
-        temperatureUnits: google.maps.weather.TemperatureUnit.FAHRENHEIT
-    });
+   
     // Instantiate an info window to hold step text.
     stepDisplay = new google.maps.InfoWindow({pixelOffset:{width:00, height:-30} });
 
@@ -307,9 +304,6 @@ function initialize() {
     var path = location.pathname;
     permalink = protocol+"//"+host+path;
     document.getElementById("permalink").href = permalink;
-    //Also, make one that will take you back over to Google Maps.
-    permalink = protocol+"//"+host+"/OSM";
-    document.getElementById("OSMversion").href = permalink;
     if(query.length>0 && baseSet)calcRoute(); //So, if you came in with a permalink, create the route.
 }
 //..................................................................................................
@@ -1356,15 +1350,15 @@ function placeMileMarkers() {
                         var marker = new google.maps.Marker({
                             position: markerPosition,
                             map: map,
-                            icon: 'RLimages/icong'+next+'.png',
-                            shadow: 'RLimages/shadow.png'
+                            icon: '../images/icong'+next+'.png',
+                            shadow: '../images/shadow.png'
                         });
                     } else {
                         var marker = new google.maps.Marker({
                             position: markerPosition,
                             map: map,
-                            icon: 'RLimages/icong.png',
-                            shadow: 'RLimages/shadow.png'
+                            icon: '../images/icong.png',
+                            shadow: '../images/shadow.png'
                         });
                     }
                     var flagText = new String();
