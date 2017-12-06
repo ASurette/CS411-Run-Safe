@@ -32,15 +32,23 @@
     <img src="/images/running.gif" height="400pxls">
     <br>
     <h3>Run Stats:</h3>
-    <p>Start/End Point: <span id="start"></span></p>
-    <script>
+    <p><b>Run Stats:</b><br><br>
+        <i>Starting Point:</i> <span id="start"></span>
+        <script>
         document.getElementById("start").innerHTML = localStorage.getItem("start");
-    </script>
-</div>
-<p>Distance: <span id="result"></span> miles</p>
-<script>
-    document.getElementById("result").innerHTML = localStorage.getItem("distance");
-</script>
+        </script><br><br>
+        <i>Distance:</i> <span id="result"></span>
+        <script>
+           document.getElementById("result").innerHTML = localStorage.getItem("distance");
+       </script><br><br>
+        <span id="permalinks"></span>
+        <script>
+            var link = localStorage.getItem("link");
+            var str = "Run it again!";
+            var result = str.link(link);
+            document.write(result);
+        </script>
+    </p>
 </div>
 
     <div>
