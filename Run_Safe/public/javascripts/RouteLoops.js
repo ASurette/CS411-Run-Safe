@@ -1075,11 +1075,11 @@ function toggleAutoClean() {
     if(DoClean) //You are cleaning.  Want to turn it off, and set the button to turn it on.
     {
         DoClean = false;
-/*        if(Language=="JP")
-            document.getElementById("toggleClean").value="オートクリーンをオンにする";
-        else if(Language=="FR")
-            document.getElementById("toggleClean").value="Activer AutoClean";
-        else*/
+        /*        if(Language=="JP")
+                    document.getElementById("toggleClean").value="オートクリーンをオンにする";
+                else if(Language=="FR")
+                    document.getElementById("toggleClean").value="Activer AutoClean";
+                else*/
         document.getElementById("toggleClean").value="Turn AutoClean On";
         document.getElementById("toggleClean").className="butt3";
     }
@@ -2520,4 +2520,3 @@ function spritePosition(type) {
         "Vandalism":  240
     }[type];
 }
-//.................................................................................................................

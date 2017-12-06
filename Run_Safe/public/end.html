@@ -15,29 +15,33 @@
         <script src="javascripts/controllers.js"></script>
         <!-- Local styles -->
         <link rel="stylesheet" href="stylesheets/style.css">
+        <link href=' http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
 
-        <meta charset="UTF-8">
-        <title>End</title>
+        <style>
+            body {
+                background-color: goldenrod;
+                text-align:center;
+            }
+        </style>
 
     </head>
 
 <body ng-app="RunSafe">
 <div ng-controller="RunSafectrl" ng-init="initApp()">
-    <img src="/images/runningheader.png">
-
-
-<h2>Run Complete!</h2>
-    <p>Run Stats:</p>
-    <p>Starting Point: <span id="start"></span></p>
+    <h1>Run Complete!</h1>
+    <img src="/images/running.gif" height="400pxls">
+    <br>
+    <h3>Run Stats:</h3>
+    <p>Start/End Point: <span id="start"></span></p>
     <script>
         document.getElementById("start").innerHTML = localStorage.getItem("start");
     </script>
-    </div>
-    <p>Distance: <span id="result"></span> </p>
-    <script>
-        document.getElementById("result").innerHTML = localStorage.getItem("distance");
-    </script>
-    </div>
+</div>
+<p>Distance: <span id="result"></span> miles</p>
+<script>
+    document.getElementById("result").innerHTML = localStorage.getItem("distance");
+</script>
+</div>
 
     <div>
         <form class="form-inline" name="inputForm">
@@ -63,7 +67,7 @@
     </div>
 
     <br>
-    <input id="profile" type="button" value="Profile" class="btn btn-block btn-primary btn-primary" onclick="location.href='userinfo.html';" />
+    <input id="profile" type="button" value="Profile" class="btn btn-primary btn-primary" onclick="location.href='userinfo.html';" />
 
 </div>
 </body>

@@ -7,6 +7,7 @@ var db = mongoose.connection;
 var Schema = mongoose.Schema;
 var personSchema = new Schema ({
     username: String,
+    city: String,
     age: Number,
     height: String,
     weight: Number
@@ -54,6 +55,7 @@ router.get('/db', function (req, res, next) {
   })
 
 });
+
 
 //GET Fetch single user, match /users/db/Frank
 router.get('/db/:_id', function (req, res, next) {

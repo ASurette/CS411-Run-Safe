@@ -10,13 +10,14 @@ angular.module('RunSafe', [])
 
         //CREATE USER (POST)
         $scope.createUser = function() {
-            if($scope.dbID) {$scope.updateFavorite($scope.dbID);}
+            if($scope.dbID) {$scope.updateUser($scope.dbID);}
             else {
             var request = {
                 method: 'post',
                 url: 'http://localhost:3000/api/db',
                 data: {
                     username: $scope.firstname + " " + $scope.lastname,
+                    city: $scope.city,
                     age: $scope.age,
                     height: $scope.height,
                     weight: $scope.weight,
@@ -25,7 +26,7 @@ angular.module('RunSafe', [])
             $http(request)
                 .then(function(response){
                     $scope.inputForm.$setPristine();
-                    $scope.username = $scope.age = $scope.height = $scope.weight = '';
+                    $scope.username = $scope.city = $scope.age = $scope.height = $scope.weight = '';
                     $scope.getUsers();
                 })
             }
@@ -55,13 +56,13 @@ angular.module('RunSafe', [])
         }
 
         //READ USER (GET)
-        $scope.getUsers = function() {
+        $scope.getUsers = function(_id) {
             $http.get('http://localhost:3000/api/db')
                 .then(function(response){
                     $scope.users = response.data;
-
                 })
         };
+
 
         //READ FAVORITES (GET)
         $scope.getRoutes = function() {
@@ -77,6 +78,7 @@ angular.module('RunSafe', [])
             $scope.buttonMessage = "Update User";
             $scope.h2message="Updating ";
             $scope.username=user.firstname + " " + user.lastname;
+            $scope.city = user.city;
             $scope.age = user.age;
             $scope.dbID = user._id;
             $scope.height=user.height;
@@ -89,6 +91,7 @@ angular.module('RunSafe', [])
                 url: 'http://localhost:3000/api/db/' + userID ,
                 data: {
                     username: $scope.firstname + " " + $scope.lastname,
+                    city: $scope.city,
                     age: $scope.age,
                     height: $scope.height,
                     weight: $scope.weight,
@@ -98,7 +101,7 @@ angular.module('RunSafe', [])
             $http(request)
                 .then(function(response){
                     $scope.inputForm.$setPristine();
-                    $scope.name = $scope.UID = $scope.department = '';
+                    $scope.username = $scope.city = $scope.age = $scope.height = $scope.weight = '';
                     $scope.h2message="Add user";
                     $scope.buttonMessage = "Add User";
                     $scope.getUsers();
@@ -151,7 +154,7 @@ angular.module('RunSafe', [])
             $http(request)
                 .then(function(response){
                     $scope.inputForm.$setPristine();
-                    $scope.username = $scope.age = $scope.height = $scope.weight = '';
+                    $scope.username = $scope.city = $scope.age = $scope.height = $scope.weight = '';
                     $scope.getUsers();
                 })
 

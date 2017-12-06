@@ -7,18 +7,25 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link href=' http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
+    <style>
+        body {
+            font-family: 'Ubuntu', arial, serif;
+            text-align:center;
+            background-image: url(images/maxresdefault.jpg);
+        }
+
+    </style>
 
 </head>
 
 
-<body ng-app="RunSafe">
-<div ng-controller="RunSafectrl" ng-init="initApp()">
-    <img src="/images/runningheader.png">
+<body>
 
-    <div id = "title">
-        <center><img src="RunSafeLogo.png"></center>
-            <div/>
+    <h1>Welcome to RunSafe</h1>
+    <br>
+    <br>
+
             <script>
                 window.fbAsyncInit = function() {
                     // FB JavaScript SDK configuration and setup
@@ -92,12 +99,13 @@
             <!-- Facebook login or logout button -->
 
             <div>
-                <input id = "fbLogin" type = "button" value = "Login with Facebook" class="btn btn-block btn-primary btn-primary" a href="javascript:void(0);" onclick="fbLogin()"/></inputa>
+                <input id="fbLogin" type="button" value ="Login to app with Facebook" class="btn btn-primary btn-primary" onclick="fbLogin()" a href="javascript:void(0);"/>
                 <br>
-                <input id="guest" type="button" value="Continue as Guest" class="btn btn-block btn-primary btn-info" onclick="location.href='routes.html';" />
+                <br>
+                <input id="guest" type="button" value="Continue to app as a Guest" class="btn btn-primary btn-info" onclick="location.href='routes.html';"/>
             </div>
 
     </div>
-</div>
+
 </body>
 </html>
