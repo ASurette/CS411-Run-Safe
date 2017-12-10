@@ -1,1 +1,1 @@
-The runsafe folder is the final project folder. The other files are from our project assignment 3.
+The runsafe folder is the final project folder. The other files are from our project assignment 3. Also the reason I have 90 commits is because I needed to delete all files in a folder to delete it and each of those deletes was one commit. My actaul commits was probably closer to 5 if we exclude those.
