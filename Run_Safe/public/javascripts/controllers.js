@@ -188,15 +188,6 @@ angular.module('RunSafe', [])
     })
     //This controller handles toggling the display of details in the user list
     .controller('listController', function ($scope){
-        $scope.display = false;
-
-        $scope.showInfo = function() {
-            $scope.display = !$scope.display;
-        }
-
-        $scope.showRouteInfo = function() {
-                $scope.display = !$scope.display;
-
-        }
+        $scope.display = true;
 
     });
