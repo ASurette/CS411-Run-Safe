@@ -43,19 +43,19 @@
             </div>
             <div class="form-group">
                 <label class="sr-only" for="formCity">Enter City</label>
-                <input type="text" class="form-control" id="formCity" placeholder="Current City" ng-model="city" minlength = "1" maxlength= "30" required>
+                <input type="text" class="form-control" id="formCity" placeholder="Current City" ng-model="city" minlength = "1" maxlength= "50" required>
             </div>
             <div class="form-group">
                 <label class="sr-only" for="formAge">Enter Age</label>
-                <input type="number" class="form-control" id="formAge" placeholder="Age" ng-model="age" required>
+                <input type="number" class="form-control" id="formAge" placeholder="Age" ng-model="age" min= "0" max= "150" required>
             </div>
             <div class="form-group">
                 <label class="sr-only" for="formHeight">Enter Height (ft'inches)</label>
-                <input type="text" class="form-control" id="formHeight" placeholder="Height (ft'inches)" ng-model="height" minlength = "1" maxlength= "10"  required>
+                <input type="text" class="form-control" id="formHeight" placeholder="Height (ft'inches)" ng-model="height" minlength = "1" maxlength= "10" required>
             </div>
             <div class="form-group">
                 <label class="sr-only" for="formWeight">Enter Weight (lbs)</label>
-                <input type="number" class="form-control" id="formWeight" placeholder="Weight (lbs)" ng-model="weight"  required>
+                <input type="number" class="form-control" id="formWeight" placeholder="Weight (lbs)" ng-model="weight" step= "0.01" min= "1" max= "1000" required>
                 <input type="hidden" value="{{user._id}}">
             </div>
             <button type="submit" class="btn btn-primary" ng-disabled="inputForm.$invalid" ng-click="createUser()">{{buttonMessage}}</button>
@@ -68,7 +68,7 @@
     <div class="well col-md-8 col-md-offset-2">
         <ul class="list-group">
             <h3>User Information</h3>
-            <li ng-controller="listController" class="list-group-item largeText" ng-repeat="user in users">
+            <li ng-controller="listController" class="list-group-item largeText" ng-repeat="user in users | filter:user._id">
                 Username: <span ng-show="display"> {{user.username}}</span><br>
                 Current City: <span ng-show="display"> {{user.city}}</span><br>
                 Age: <span ng-show="display"> {{user.age}}</span><br>
@@ -89,7 +89,7 @@
 <div class="well col-md-8 col-md-offset-2">
     <ul class="list-group">
         <h3>Favorite Routes</h3>
-        <li ng-controller="listController" class="list-group-item largeText" ng-repeat="route in routes">
+        <li ng-controller="listController" class="list-group-item largeText" ng-repeat="route in routes | filter:user._id">
             Route Name: <span ng-show="display"> {{route.routename}}</span><br>
             Start/End Point: <span ng-show="display"> {{route.starting point}}</span><br>
             Distance: <span ng-show="display"> {{route.distance}}</span><br>

@@ -35,10 +35,12 @@
         <i>Starting Point:</i> <span id="start"></span>
         <script>
         document.getElementById("start").innerHTML = localStorage.getItem("start");
+        var startpoint = localStorage.getItem("start");
         </script><br><br>
         <i>Distance:</i> <span id="result"></span>
         <script>
            document.getElementById("result").innerHTML = localStorage.getItem("distance");
+           var distance = localStorage.getItem("distance");
        </script><br><br>
         <span id="permalinks"></span>
         <script>
@@ -47,6 +49,11 @@
             var result = str.link(link);
             document.write(result);
         </script><br>
+    <script>
+        document.getElementById("startpoint").value = startpoint;
+        document.getElementById("distance").value = distance;
+        document.getElementById("link").value = link;
+    </script>
         <a href="routes.html">Run a new route!</a>
     </p>
 </div>
@@ -55,7 +62,7 @@
         <form class="form-inline" name="inputForm">
             <div class="form-group">
                 <label class="sr-only" for="formRouteName">Save Route</label>
-                Name Your Route: <input type="text" class="form-control" id="formRouteName" placeholder="Route Name" ng-model="saveroute" minlength = "1" maxlength= "100" required>
+                Name Your Route: <input type="text" class="form-control" id="formRouteName" placeholder="Route Name" ng-model="saveroute"required>
             </div>
             <div class="form-group">
                 <label class="sr-only" for="formRouteStart">Starting Point</label>
